@@ -33,7 +33,7 @@ const CreateAbsenceScreen: React.FC = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Start Date Input */}
-      <Text style={styles.label}>Start Date</Text>
+      <Text style={styles.label}>Начало</Text>
       <Button
         title={`Select Start Date: ${startDate.toISOString().split('T')[0]}`}
         onPress={() => setShowStartDatePicker(true)}
@@ -53,7 +53,7 @@ const CreateAbsenceScreen: React.FC = () => {
       )}
 
       {/* End Date Input */}
-      <Text style={styles.label}>End Date</Text>
+      <Text style={styles.label}>Окончание</Text>
       <Button
         title={`Select End Date: ${endDate.toISOString().split('T')[0]}`}
         onPress={() => setShowEndDatePicker(true)}
@@ -73,11 +73,11 @@ const CreateAbsenceScreen: React.FC = () => {
       )}
 
       {/* File Attachment Field */}
-      <Text style={styles.label}>Attach Files</Text>
-      <Button title="Attach File" onPress={handleAttachFile} />
+      <Text style={styles.label}>Прикрепить файлы</Text>
+      <Button title="Прикрепить файлы" onPress={handleAttachFile} />
       {attachedFiles.length > 0 && (
         <View style={styles.fileList}>
-          <Text style={styles.fileListTitle}>Attached Files:</Text>
+          <Text style={styles.fileListTitle}>Прикрепленные файлы:</Text>
           {attachedFiles.map((file, index) => (
             <Text key={index} style={styles.fileName}>
               {file.name}
@@ -88,7 +88,7 @@ const CreateAbsenceScreen: React.FC = () => {
 
       {/* Submit Button */}
       <View style={styles.submitButton}>
-        <Button title="Submit" onPress={handleSubmit} />
+        <Button title="Отправить" onPress={handleSubmit} />
       </View>
     </ScrollView>
   );
@@ -121,6 +121,8 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 24,
+    marginRight: 100,
+    marginLeft: 100
   },
 });
 

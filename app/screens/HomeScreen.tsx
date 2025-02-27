@@ -10,6 +10,8 @@ type HomeScreenProps = StackScreenProps<RootStackParamList, 'Home'>;
 interface UserData {
   name: string;
   email: string;
+  group: string;
+  course: string;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
@@ -22,7 +24,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       const accessToken = await AsyncStorage.getItem('accessToken');
       if (accessToken) {
         // Simulate an API call to fetch user data
-        setUserData({ name: 'Ivan Ivanov', email: 'ivan.ivanov@example.com' });
+        setUserData({ 
+          name: 'Ivan Ivanov',
+          email: 'ivan.ivanov@example.com',
+          group: '111111',
+          course: '2' 
+        });
       }
     };
     fetchUserData();
@@ -46,36 +53,46 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.userData}>Данные пользователя:</Text>
+      <Text style={{fontSize: 25}}>Данные пользователя:</Text>
       {userData && (
         <View style={styles.userData}>
-          <Text>Name: {userData.name}</Text>
-          <Text>Email: {userData.email}</Text>
+          <Text style={styles.userData}>Имя: {userData.name}</Text>
+          <Text style={styles.userData}>Email: {userData.email}</Text>
+          <Text style={styles.userData}>Группа: {userData.group}</Text>
+          <Text style={styles.userData}>Курс: {userData.course}</Text>
         </View>
       )}
-      <Button title="Создать пропуск" onPress={createAbsence} />
-      <Button title="Мои пропуски" onPress={viewMyAbsences} />
-      <Button title="Выйти" onPress={handleLogout} />
+      <View style={styles.actionButton}>
+        <Button title="Создать пропуск" onPress={createAbsence} />
+      </View>
+      <View style={styles.actionButton}>
+        <Button title="Мои пропуски" onPress={viewMyAbsences} />
+      </View>
+      <View style={styles.actionButton}>
+        <Button title="Выйти" onPress={handleLogout} />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 5
+    flexGrow: 1,
+    padding: 16,
+    backgroundColor: '#f5f5f5',
   },
   title: {
     fontSize: 24,
     marginBottom: 16,
   },
   userData: {
-    marginBottom: 16,
+    marginBottom: 5,
+    fontSize: 15,
   },
   actionButton: {
-    gap: 5
+    marginLeft: 100,
+    marginRight: 100,
+    marginTop: 10,
   }
 });
 

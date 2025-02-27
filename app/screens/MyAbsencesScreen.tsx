@@ -13,25 +13,25 @@ type CardItem = {
 const cardData: CardItem[] = [
   {
     id: '1',
-    title: 'Project Alpha',
+    title: 'Пропуск 1',
     startDate: '2023-10-01',
     endDate: '2023-10-15',
   },
   {
     id: '2',
-    title: 'Project Beta',
+    title: 'Пропуск 2',
     startDate: '2023-11-01',
     endDate: '2023-11-30',
   },
   {
     id: '3',
-    title: 'Project Gamma',
+    title: 'Пропуск 3',
     startDate: '2023-12-01',
     endDate: '2023-12-31',
   },
   {
     id: '4',
-    title: 'Project Delta',
+    title: 'Пропуск 4',
     startDate: '2024-01-01',
     endDate: '2024-01-31',
   },
