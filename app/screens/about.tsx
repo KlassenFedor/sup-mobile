@@ -1,13 +1,13 @@
 import { View, Text, Button, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 
-export default function HomeScreen() {
+export default function AboutScreen() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to My Expo App 🚀</Text>
-      <Button title="Go to About" onPress={() => router.push("/screens/about")} />
+      <Text style={styles.title}>About This App</Text>
+      <Button title="Go Back" onPress={() => router.back()} />
     </View>
   );
 }

@@ -1,12 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import { SafeAreaView, StyleSheet, Text } from 'react-native';
 
 const App = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.text}>Hello, React Native!</Text>
-      </View>
+      <Text style={styles.text}>Hello, React Native! 🚀</Text>
     </SafeAreaView>
   );
 };
@@ -14,16 +12,14 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  content: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f5f5f5',
   },
   text: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
+    color: '#333',
   },
 });
 
