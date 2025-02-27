@@ -11,7 +11,7 @@
 2. Start the app
 
    ```bash
-    npx start
+    npm start
    ```
 
 3. Login
