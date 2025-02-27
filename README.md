@@ -14,6 +14,12 @@
     npx start
    ```
 
+3. Login
+   ```
+   Login: user
+   Password: password
+   ```
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
