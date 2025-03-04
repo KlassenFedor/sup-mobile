@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, RefreshControl, Button } from 'react-native';
+import axios from 'axios';
 
 // Define the type for a single card
 type CardItem = {
@@ -7,65 +8,76 @@ type CardItem = {
   title: string;
   startDate: string;
   endDate: string;
+  status: string;
+  files: string[]; // Array of file URLs
 };
 
-// Sample data for the cards
-const cardData: CardItem[] = [
-  {
-    id: '1',
-    title: 'Пропуск 1',
-    startDate: '2023-10-01',
-    endDate: '2023-10-15',
-  },
-  {
-    id: '2',
-    title: 'Пропуск 2',
-    startDate: '2023-11-01',
-    endDate: '2023-11-30',
-  },
-  {
-    id: '3',
-    title: 'Пропуск 3',
-    startDate: '2023-12-01',
-    endDate: '2023-12-31',
-  },
-  {
-    id: '4',
-    title: 'Пропуск 4',
-    startDate: '2024-01-01',
-    endDate: '2024-01-31',
-  },
-];
-
 // Card component
-const Card = ({ title, startDate, endDate }: CardItem) => {
+const Card = ({ title, startDate, endDate, status, files }: CardItem) => {
+  const handleViewFiles = () => {
+    if (files.length === 0) {
+      Alert.alert('No Files', 'No attached files for this absence.');
+    } else {
+      Alert.alert('Attached Files', files.join('\n')); // Display files in an alert
+    }
+  };
+
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.cardText}>Start Date: {startDate}</Text>
       <Text style={styles.cardText}>End Date: {endDate}</Text>
+      <Text style={styles.cardText}>Status: {status}</Text>
+      <Button title="View Files" onPress={handleViewFiles} />
     </View>
   );
 };
 
 // Main screen component
 const MyAbsencesScreen: React.FC = () => {
+  const [data, setData] = useState<CardItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+
+  const API_URL = 'https://your-api.com/absences'; // Replace with your actual API endpoint
+
+  // Fetch data from API
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(API_URL);
+      setData(response.data); // Ensure API returns an array of cards
+    } catch (error) {
+      Alert.alert('Error', 'Failed to load absences data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Refresh function for pull-to-refresh
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
-    <ScrollView style={styles.container}>
-      <FlatList
-        data={cardData}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Card
-            id={item.id}
-            title={item.title}
-            startDate={item.startDate}
-            endDate={item.endDate}
-          />
-        )}
-        scrollEnabled={false} // Disable FlatList scrolling since ScrollView is used
-      />
-    </ScrollView>
+    <View style={styles.container}>
+      {loading ? (
+        <ActivityIndicator size="large" color="#007AFF" />
+      ) : (
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <Card {...item} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        />
+      )}
+    </View>
   );
 };
 
@@ -95,6 +107,7 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 14,
     color: '#666',
+    marginBottom: 4,
   },
 });
 
