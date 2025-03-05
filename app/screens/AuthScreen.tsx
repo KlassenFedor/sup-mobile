@@ -3,13 +3,13 @@ import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../index';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 type AuthScreenProps = StackScreenProps<RootStackParamList, 'Auth'> & {
   setIsAuthenticated: (isAuthenticated: boolean) => void;
 };
 
-const API_URL = 'https://your-api.com'; // Replace with your actual API endpoint
+const API_URL = 'http://10.0.2.2:8000'; // Replace with your actual API endpoint
 
 const AuthScreen: React.FC<AuthScreenProps> = ({ setIsAuthenticated }) => {
   const [login, setLogin] = useState<string>('');
@@ -17,8 +17,9 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ setIsAuthenticated }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, { login, password });
-      const { accessToken, refreshToken } = response.data;
+      const response = await axios.post(`${API_URL}/login`, { "username": login, "password": password });
+      const accessToken = response.data['access_token'];
+      const refreshToken = response.data['refresh_token'];
 
       // Store tokens
       await AsyncStorage.setItem('accessToken', accessToken);
@@ -28,6 +29,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ setIsAuthenticated }) => {
       setIsAuthenticated(true);
     } catch (error) {
       Alert.alert('Login Failed', 'Invalid username or password');
+      console.log(error)
     }
   };
 
@@ -57,7 +59,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
     const refreshToken = await AsyncStorage.getItem('refreshToken');
     if (!refreshToken) throw new Error('No refresh token available');
 
-    const response = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
+    const response = await axios.post(`${API_URL}/refresh`, { refreshToken });
     const { accessToken, refreshToken: newRefreshToken } = response.data;
 
     // Update tokens in storage

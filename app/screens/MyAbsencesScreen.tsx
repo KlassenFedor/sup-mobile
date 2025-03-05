@@ -39,7 +39,7 @@ const MyAbsencesScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  const API_URL = 'https://your-api.com/absences'; // Replace with your actual API endpoint
+  const API_URL = 'http://10.0.2.2:8000'; // Replace with your actual API endpoint
 
   // Fetch data from API
   const fetchData = async () => {
