@@ -12,6 +12,7 @@ import AuthScreen from './screens/AuthScreen';
 import HomeScreen from './screens/HomeScreen';
 import CreateAbsenceScreen from './screens/CreateAbsenceScreen';
 import MyAbsencesScreen from './screens/MyAbsencesScreen';
+import ProfileScreen from './screens/ProfileScreen';
 import { AuthContext } from './context/AuthContext';
 
 export type RootStackParamList = {
@@ -19,6 +20,7 @@ export type RootStackParamList = {
   Home: undefined;
   MyAbsences: undefined;
   CreateAbsence: undefined;
+  MyProfile: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -46,6 +48,7 @@ export default function App() {
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="MyAbsences" component={MyAbsencesScreen} />
                 <Stack.Screen name="CreateAbsence" component={CreateAbsenceScreen} />
+                <Stack.Screen name="MyProfile" component={ProfileScreen} />
             </>
           ) : (
             // Auth screen

@@ -51,6 +51,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     navigation.navigate('MyAbsences');
   };
 
+  const viewMyProfile = async () => {
+    navigation.navigate('MyProfile');
+  };
+
   return (
     <View style={styles.container}>
       <Text style={{fontSize: 25}}>Данные пользователя:</Text>
@@ -67,6 +71,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       </View>
       <View style={styles.actionButton}>
         <Button title="Мои пропуски" onPress={viewMyAbsences} />
+      </View>
+      <View style={styles.actionButton}>
+        <Button title="Профиль" onPress={viewMyProfile} />
       </View>
       <View style={styles.actionButton}>
         <Button title="Выйти" onPress={handleLogout} />

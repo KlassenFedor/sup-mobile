@@ -63,10 +63,10 @@ fake_users_db = {
         "username": "user",
         "password": "password",
         "profile": {
-            "name": "John",
-            "surname": "Doe",
-            "groupCode": "CS101",
-            "courseCode": "COMP2024"
+            "name": "Ivan Ivanov",
+            "email": "ivan.ivanov@example.ru",
+            "groupCode": "999999",
+            "courseNumber": "3"
         }
     }
 }
@@ -102,9 +102,9 @@ class CardItem(BaseModel):
 # Profile model
 class UserProfile(BaseModel):
     name: str
-    surname: str
+    email: str
     groupCode: str
-    courseCode: str
+    courseNumber: str
 
 
 # Function to create JWT tokens
