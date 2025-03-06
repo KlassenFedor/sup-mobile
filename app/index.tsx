@@ -1,10 +1,3 @@
-// import { AppRegistry } from 'react-native';
-// import App from './App';
-// import appConfig from '../app.json';
-
-// const appName = appConfig.expo.name;
-// export default AppRegistry.registerComponent(appName, () => App);
-
 import React, { useState, useEffect } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -39,21 +32,21 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
-        <Stack.Navigator>
-          {isAuthenticated ? (
-            // Authenticated screens
-            <>
-                <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="MyAbsences" component={MyAbsencesScreen} />
-                <Stack.Screen name="CreateAbsence" component={CreateAbsenceScreen} />
-            </>
-          ) : (
-            // Auth screen
-            <Stack.Screen name="Auth" options={{ headerShown: false }}>
-              {(props) => <AuthScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
-            </Stack.Screen>
-          )}
-        </Stack.Navigator>
+      <Stack.Navigator>
+        {isAuthenticated ? (
+          // Authenticated screens
+          <>
+            <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeScreen} />
+            <Stack.Screen name="MyAbsences" component={MyAbsencesScreen} />
+            <Stack.Screen name="CreateAbsence" component={CreateAbsenceScreen} />
+          </>
+        ) : (
+          // Auth screen
+          <Stack.Screen name="Auth" options={{ headerShown: false }}>
+            {(props) => <AuthScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
+          </Stack.Screen>
+        )}
+      </Stack.Navigator>
     </AuthContext.Provider>
   );
 }

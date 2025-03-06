@@ -3,15 +3,17 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "@constants": ["./app/shared/constants.tsx"],
+      "@common/*": ["./app/shared/*"],
+      "@sup-components": ["./app/shared/SupComponents"]
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "react-native.config.js"
   ]
 }
