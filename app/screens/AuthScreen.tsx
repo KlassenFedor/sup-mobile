@@ -59,8 +59,9 @@ export const refreshAccessToken = async (): Promise<string | null> => {
     const refreshToken = await AsyncStorage.getItem('refreshToken');
     if (!refreshToken) throw new Error('No refresh token available');
 
-    const response = await axios.post(`${API_URL}/refresh`, { refreshToken });
-    const { accessToken, refreshToken: newRefreshToken } = response.data;
+    const response = await axios.post(`${API_URL}/refresh`, { 'token': refreshToken });
+    const accessToken = response.data['access_token'];
+    const newRefreshToken = response.data['refresh_token'];
 
     // Update tokens in storage
     await AsyncStorage.setItem('accessToken', accessToken);

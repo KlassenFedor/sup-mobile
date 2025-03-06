@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, RefreshControl, Button } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 // Define the type for a single card
@@ -33,6 +34,22 @@ const Card = ({ title, startDate, endDate, status, files }: CardItem) => {
   );
 };
 
+
+const getAccessToken = async () => {
+  try {
+    const token = await AsyncStorage.getItem('accessToken'); // Retrieve token
+    if (token !== null) {
+      console.log('Access Token:', token);
+      return token;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error retrieving access token:', error);
+    return null;
+  }
+};
+
+
 // Main screen component
 const MyAbsencesScreen: React.FC = () => {
   const [data, setData] = useState<CardItem[]>([]);
@@ -45,7 +62,12 @@ const MyAbsencesScreen: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(API_URL);
+      const token = await getAccessToken();
+      const response = await axios.get(`${API_URL}/cards`, {
+        headers: {
+          'Authorization': `Bearer ${token}`, // Attach the token in Authorization header
+        },
+      });
       setData(response.data); // Ensure API returns an array of cards
     } catch (error) {
       Alert.alert('Error', 'Failed to load absences data.');
