@@ -39,7 +39,7 @@ fake_cards_db = {
     "user": [
         {
             "id": "1",
-            "title": "Pass 1",
+            "title": "Пропуск 1",
             "startDate": "2023-10-01",
             "endDate": "2023-10-15",
             "status": "Approved",
@@ -47,7 +47,7 @@ fake_cards_db = {
         },
         {
             "id": "2",
-            "title": "Pass 2",
+            "title": "Пропуск 2",
             "startDate": "2023-11-01",
             "endDate": "2023-11-30",
             "status": "Pending",

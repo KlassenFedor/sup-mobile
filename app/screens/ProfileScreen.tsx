@@ -3,10 +3,9 @@ import { View, Text, Button, StyleSheet, ActivityIndicator, Alert } from 'react-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { StackScreenProps } from '@react-navigation/stack';
-import { RootStackParamList } from '../index';
-import { AuthContext } from '../context/AuthContext';
-
-type ProfileScreenProps = StackScreenProps<RootStackParamList, 'MyProfile'>;
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useAuth } from '../context/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
 interface UserProfile {
   name: string;
@@ -15,12 +14,25 @@ interface UserProfile {
   courseNumber: string;
 }
 
-const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
+type RootStackParamList = {
+    Auth: undefined;  // Auth screen
+    Tabs: undefined;  // Bottom tab navigation
+  };
+
+type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
+
+const ProfileScreen: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { setIsAuthenticated } = useContext(AuthContext);
+  const { logout } = useAuth();
 
   const API_URL = 'http://10.0.2.2:8000'; 
+  const navigation = useNavigation<ProfileScreenNavigationProp>();
+
+  const handleLogout = async () => {
+    await logout();
+    navigation.replace('Auth');  // Replace Tabs with Auth screen
+  };
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -46,14 +58,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
     fetchUserProfile();
   }, []);
 
-  const handleLogout = async () => {
-    // Remove tokens from AsyncStorage
-    await AsyncStorage.removeItem('accessToken');
-    await AsyncStorage.removeItem('refreshToken');
-    setIsAuthenticated(false);
-    // navigation.navigate('Auth');
-  };
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -66,16 +70,19 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
     <View style={styles.container}>
       {user ? (
         <>
-          <Text style={styles.title}>Profile</Text>
-          <Text style={styles.text}>👤 Name: {user.name}</Text>
+          <Text style={styles.title}>Профиль</Text>
+          <Text style={styles.text}>👤 Имя: {user.name}</Text>
           <Text style={styles.text}>📧 Email: {user.email}</Text>
-          <Text style={styles.text}>🏫 Group Code: {user.groupCode}</Text>
-          <Text style={styles.text}>📚 Course: {user.courseNumber}</Text>
+          <Text style={styles.text}>🏫 Группа: {user.groupCode}</Text>
+          <Text style={styles.text}>📚 Курс: {user.courseNumber}</Text>
 
-          <Button title="Logout" color="red" onPress={handleLogout} />
+          <Button title="Выйти" color="red" onPress={logout} />
         </>
       ) : (
-        <Text style={styles.errorText}>Failed to load profile</Text>
+        <>
+        <Text style={styles.errorText}>Не удалось загрузить профиль</Text>
+          <Button title="Выйти" color="red" onPress={logout} />
+        </>
       )}
     </View>
   );

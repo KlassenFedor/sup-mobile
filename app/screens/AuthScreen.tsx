@@ -2,18 +2,15 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackScreenProps } from '@react-navigation/stack';
-import { RootStackParamList } from '../index';
 import axios, { AxiosError } from 'axios';
-
-type AuthScreenProps = StackScreenProps<RootStackParamList, 'Auth'> & {
-  setIsAuthenticated: (isAuthenticated: boolean) => void;
-};
+import { useAuth } from '../context/AuthContext';
 
 const API_URL = 'http://10.0.2.2:8000'; // Replace with your actual API endpoint
 
-const AuthScreen: React.FC<AuthScreenProps> = ({ setIsAuthenticated }) => {
+const AuthScreen: React.FC = () => {
   const [login, setLogin] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const { setIsAuthenticated } = useAuth();
 
   const handleLogin = async () => {
     try {
@@ -25,7 +22,6 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ setIsAuthenticated }) => {
       await AsyncStorage.setItem('accessToken', accessToken);
       await AsyncStorage.setItem('refreshToken', refreshToken);
 
-      // Update authentication state
       setIsAuthenticated(true);
     } catch (error) {
       Alert.alert('Login Failed', 'Invalid username or password');

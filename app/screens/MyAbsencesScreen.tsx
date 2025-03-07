@@ -29,7 +29,7 @@ const Card = ({ title, startDate, endDate, status, files }: CardItem) => {
       <Text style={styles.cardText}>Start Date: {startDate}</Text>
       <Text style={styles.cardText}>End Date: {endDate}</Text>
       <Text style={styles.cardText}>Status: {status}</Text>
-      <Button title="View Files" onPress={handleViewFiles} />
+      <Button title="Прикрепленные файлы" onPress={handleViewFiles} />
     </View>
   );
 };
@@ -39,7 +39,6 @@ const getAccessToken = async () => {
   try {
     const token = await AsyncStorage.getItem('accessToken'); // Retrieve token
     if (token !== null) {
-      console.log('Access Token:', token);
       return token;
     }
     return null;
