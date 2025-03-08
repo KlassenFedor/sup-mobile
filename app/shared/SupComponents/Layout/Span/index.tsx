@@ -5,17 +5,15 @@ import { handleStylesToAdd } from '@common/helpers';
 
 type SpanProps = {
   children: React.ReactNode;
-  styles?: StylesType;
+  style?: StylesType;
 };
 
-const Span: React.FC<SpanProps> = ({ children, styles }) => (
+const Span: React.FC<SpanProps> = ({ children, style }) => (
   <View
     style={{
-      flex: 1,
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+      display: 'inline',
       marginHorizontal: 0,
-      ...handleStylesToAdd(styles),
+      ...handleStylesToAdd(style),
     }}
   >
     {children}

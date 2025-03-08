@@ -20,7 +20,7 @@ const ScreenDataWrapper: React.FC<ScreenDataWrapperProps> = ({ alignItems, child
         flex: 1,
         flexDirection: 'column',
         justifyContent: justifyContent,
-        padding: 8,
+        padding: 16,
         ...handleStylesToAdd(style),
       }}
     >

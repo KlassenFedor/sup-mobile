@@ -1,101 +1,76 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
+import { FlatList, ScrollView } from 'react-native';
+import { ScreenDataWrapper, ScreenHeader, CardItem } from '@sup-components';
+import { AbsenceDTO } from '../shared/types';
 
-// Define the type for a single card
-type CardItem = {
-  id: string;
-  title: string;
-  startDate: string;
-  endDate: string;
-};
-
-// Sample data for the cards
-const cardData: CardItem[] = [
+const cardData: AbsenceDTO[] = [
   {
+    hasAttachedDocs: true,
     id: '1',
-    title: 'Пропуск 1',
-    startDate: '2023-10-01',
-    endDate: '2023-10-15',
+    name: 'Пропуск № 2021',
+    startDate: '03.03.2025',
+    endDate: '07.03.2025',
+    status: 'checking',
   },
   {
+    hasAttachedDocs: false,
     id: '2',
-    title: 'Пропуск 2',
-    startDate: '2023-11-01',
-    endDate: '2023-11-30',
+    name: 'Пропуск № 956',
+    startDate: '01.02.2025',
+    endDate: '01.02.2025',
+    status: 'rejected',
   },
   {
+    hasAttachedDocs: true,
     id: '3',
-    title: 'Пропуск 3',
-    startDate: '2023-12-01',
-    endDate: '2023-12-31',
+    name: 'Пропуск № 989',
+    startDate: '07.02.2025',
+    endDate: '09.02.2025',
+    status: 'approved',
   },
   {
+    hasAttachedDocs: false,
     id: '4',
-    title: 'Пропуск 4',
-    startDate: '2024-01-01',
-    endDate: '2024-01-31',
+    name: 'Пропуск № 1000',
+    startDate: '28.02.2025',
+    endDate: '28.02.2025',
+    status: 'checking',
+  },
+  {
+    hasAttachedDocs: false,
+    id: '5',
+    name: 'Пропуск № 1010',
+    startDate: '05.03.2025',
+    endDate: '06.03.2025',
+    status: 'rejected',
+  },
+  {
+    hasAttachedDocs: true,
+    id: '6',
+    name: 'Пропуск № 1810',
+    startDate: '13.03.2025',
+    endDate: '20.03.2025',
+    status: 'checking',
   },
 ];
-
-// Card component
-const Card = ({ title, startDate, endDate }: CardItem) => {
-  return (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>{title}</Text>
-      <Text style={styles.cardText}>Start Date: {startDate}</Text>
-      <Text style={styles.cardText}>End Date: {endDate}</Text>
-    </View>
-  );
-};
 
 // Main screen component
 const MyAbsencesScreen: React.FC = () => {
   return (
-    <ScrollView style={styles.container}>
-      <FlatList
-        data={cardData}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Card
-            id={item.id}
-            title={item.title}
-            startDate={item.startDate}
-            endDate={item.endDate}
+    <>
+      <ScreenHeader headerTitle="Мои пропуски"></ScreenHeader>
+      <ScreenDataWrapper style={{ paddingBottom: 0 }}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <FlatList
+            data={cardData}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <CardItem cardData={item} />}
+            scrollEnabled={false} // Disable FlatList scrolling since ScrollView is used
           />
-        )}
-        scrollEnabled={false} // Disable FlatList scrolling since ScrollView is used
-      />
-    </ScrollView>
+        </ScrollView>
+      </ScreenDataWrapper>
+    </>
   );
 };
-
-// Styles
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#f5f5f5',
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3, // For Android shadow
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  cardText: {
-    fontSize: 14,
-    color: '#666',
-  },
-});
 
 export default MyAbsencesScreen;

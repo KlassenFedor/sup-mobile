@@ -13,8 +13,6 @@ export const styles = StyleSheet.create({
   },
   screenHeaderBlock: {
     backgroundColor: Colours.WHITE,
-    marginTop: -8,
-    marginHorizontal: -8,
     marginBottom: 0,
     paddingTop: 22,
     paddingHorizontal: 16,
