@@ -1,5 +1,5 @@
-import { NavRoutes } from '@/app';
 import { OutlineGlyphMapType } from '@ant-design/icons-react-native';
+import { NavRoutes } from '@/app';
 
 export type IconNames = OutlineGlyphMapType;
 

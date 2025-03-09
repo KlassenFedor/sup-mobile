@@ -17,5 +17,8 @@ export const styles = StyleSheet.create({
     paddingTop: 22,
     paddingHorizontal: 16,
     paddingBottom: 12,
+    borderBottomColor: '#D8D8D8',
+    borderBottomWidth: 1,
+    boxShadow: '0px 2px 6px 2px rgba(0, 0, 0, 0.1)',
   },
 });
