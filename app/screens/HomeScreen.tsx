@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { StackScreenProps } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../context/AuthContext';
-import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../index';
 import { ScreenDataWrapper, ScreenHeader } from '@sup-components';
 
