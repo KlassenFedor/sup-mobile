@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../index';
 import { ScreenDataWrapper, ScreenHeader } from '@sup-components';
 
-type HomeScreenProps = StackScreenProps<RootStackParamList, 'Home'>;
+type HomeScreenProps = StackScreenProps<RootStackParamList>;
 
 interface UserData {
   name: string;
@@ -14,9 +14,9 @@ interface UserData {
   course: string;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+const HomeScreen: React.FC = ({ navigation }) => {
   const [userData, setUserData] = useState<UserData | null>(null);
-  const { setIsAuthenticated } = useContext(AuthContext);
+  const { setIsAuthenticated } = useAuth();
 
   // Simulate fetching user data using the access token
   useEffect(() => {

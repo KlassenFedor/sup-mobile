@@ -35,4 +35,9 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# python
+.venv
+__pycache__
+
 app-example
+

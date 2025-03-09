@@ -11,8 +11,8 @@ export const CardStatus = {
 export type AbsenceStatus = 'checking' | 'approved' | 'rejected';
 
 export interface AbsenceDTO {
-  hasAttachedDocs: boolean;
   id: string;
+  files: string[];
   name: string;
   startDate: string;
   endDate: string;
