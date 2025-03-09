@@ -4,6 +4,7 @@ import { View } from '@ant-design/react-native';
 import { NavItemType, NavItem } from '@sup-components';
 import { styles } from './styles';
 import { NavigationProp, NavRoutes } from '@/app';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 const navItems: NavItemType[] = [
   { navItemKey: 'Home', iconName: 'home' },
@@ -11,12 +12,11 @@ const navItems: NavItemType[] = [
   { navItemKey: 'Profile', iconName: 'user' },
 ];
 
-const NavigationBar: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const [activeKey, setActiveKey] = useState<NavRoutes>('Home');
+const NavigationBar: React.FC<BottomTabBarProps> = ({ navigation, state }) => {
+  const [activeKey, setActiveKey] = useState<string>(state.routes[state.index].name);
   console.log('Active Key:', activeKey);
 
-  const handleNavigation = async (path: NavRoutes) => {
+  const handleNavigation = async (path: string) => {
     setActiveKey(path);
     navigation.navigate(path);
   };

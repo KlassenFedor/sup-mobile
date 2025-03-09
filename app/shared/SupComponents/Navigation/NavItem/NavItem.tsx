@@ -8,7 +8,7 @@ import { default as OctIcon } from 'react-native-vector-icons/Octicons';
 import { styles } from './styles';
 
 type NavItemProps = {
-  activeKey: NavRoutes;
+  activeKey: string;
   iconLib?: 'Feather' | 'Octicons';
   iconName: string;
   navItemKey: NavRoutes;

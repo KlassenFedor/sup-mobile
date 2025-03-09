@@ -27,7 +27,7 @@ const CreateAbsenceScreen: React.FC = () => {
     console.log('Start Date:', startDate.toISOString().split('T')[0]);
     console.log('End Date:', endDate.toISOString().split('T')[0]);
     console.log('Attached Files:', attachedFiles);
-    alert('Form submitted successfully!');
+    alert('Данные успешно отправлены!');
   };
 
   return (

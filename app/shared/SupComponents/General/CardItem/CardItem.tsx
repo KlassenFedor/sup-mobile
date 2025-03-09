@@ -6,6 +6,8 @@ import { AbsenceDTO, AbsenceStatus } from '@/app/shared/types';
 import { AbsenceStatusToRussian, Colours } from '@constants';
 import { styles } from './styles';
 import { Span } from '../../Layout';
+import { Alert } from 'react-native';
+import { Button } from '@sup-components';
 
 type CardProps = {
   cardData: AbsenceDTO;
@@ -24,7 +26,17 @@ const getCardStatusColor = (status: AbsenceStatus): string => {
 };
 
 const CardItem: React.FC<CardProps> = ({ cardData }) => {
-  const { name, startDate, endDate, status, hasAttachedDocs } = cardData;
+  const { name, startDate, endDate, status, files } = cardData;
+  const hasAttachedDocs = files &&files.length > 0;
+
+  const handleViewFiles = () => {
+    if (files.length === 0) {
+      Alert.alert('No Files', 'No attached files for this absence.');
+    } else {
+      Alert.alert('Attached Files', files.join('\n')); // Display files in an alert
+    }
+  };
+
   return (
     <Card style={styles.card}>
       <Flex justify="between" align="start">
@@ -40,6 +52,7 @@ const CardItem: React.FC<CardProps> = ({ cardData }) => {
           <Text style={styles.cardText}>с: {startDate}</Text>
           <Text style={styles.cardText}>по: {endDate}</Text>
           <Text style={styles.cardText}>статус: {AbsenceStatusToRussian[status]}</Text>
+          <Button styleType="blank" onPress={handleViewFiles} >Прикрепленные файлы</Button>
         </Flex.Item>
         <View style={{ backgroundColor: getCardStatusColor(status), width: 18, height: '100%' }} />
       </Flex>

@@ -1,34 +1,32 @@
 import React, { useState } from 'react';
 import { Text, StyleSheet, Alert } from 'react-native';
-import { StackScreenProps } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RootStackParamList } from '../index';
 import { Button, ContentBlock, ScreenDataWrapper, TextInput } from '@sup-components';
 import { Colours } from '@constants';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
-type AuthScreenProps = StackScreenProps<RootStackParamList, 'Auth'> & {
-  setIsAuthenticated: (isAuthenticated: boolean) => void;
-};
+const API_URL = 'http://10.0.2.2:8000'; // Replace with your actual API endpoint
 
-const AuthScreen: React.FC<AuthScreenProps> = ({ setIsAuthenticated }) => {
+const AuthScreen: React.FC = () => {
   const [login, setLogin] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const { setIsAuthenticated } = useAuth();
 
   const handleLogin = async () => {
-    // Simulate a login API call
-    if (login === 'user' && password === 'password') {
-      // Simulate receiving tokens from the server
-      const accessToken = 'dummyAccessToken';
-      const refreshToken = 'dummyRefreshToken';
+    try {
+      const response = await axios.post(`${API_URL}/login`, { "username": login, "password": password });
+      const accessToken = response.data['access_token'];
+      const refreshToken = response.data['refresh_token'];
 
-      // Save tokens to AsyncStorage
+      // Store tokens
       await AsyncStorage.setItem('accessToken', accessToken);
       await AsyncStorage.setItem('refreshToken', refreshToken);
 
-      // Update authentication state
       setIsAuthenticated(true);
-    } else {
-      Alert.alert('Error', 'Invalid login or password');
+    } catch (error) {
+      Alert.alert('Login Failed', 'Invalid username or password');
+      console.log(error)
     }
   };
 
@@ -61,7 +59,25 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ setIsAuthenticated }) => {
   );
 };
 
-export default AuthScreen;
+export const refreshAccessToken = async (): Promise<string | null> => {
+  try {
+    const refreshToken = await AsyncStorage.getItem('refreshToken');
+    if (!refreshToken) throw new Error('No refresh token available');
+
+    const response = await axios.post(`${API_URL}/refresh`, { 'token': refreshToken });
+    const accessToken = response.data['access_token'];
+    const newRefreshToken = response.data['refresh_token'];
+
+    // Update tokens in storage
+    await AsyncStorage.setItem('accessToken', accessToken);
+    await AsyncStorage.setItem('refreshToken', newRefreshToken);
+
+    return accessToken;
+  } catch (error) {
+    Alert.alert('Session Expired', 'Please log in again');
+    return null;
+  }
+};
 
 const styles = StyleSheet.create({
   title: {
@@ -71,3 +87,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+export default AuthScreen;
