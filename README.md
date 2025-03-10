@@ -20,6 +20,12 @@
    Password: password
    ```
 
+4. Dummy server (server.py file)
+   ```
+   Install the required dependencies: pip install fastapi uvicorn python-jose[cryptography] passlib
+   Run server: uvicorn server:app --reload
+   ```
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
