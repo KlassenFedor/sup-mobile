@@ -5,9 +5,9 @@ import { commonStyles } from '@common/styles';
 import { styles } from './styles';
 
 type ScreenHeaderProps = {
-  actionButtonTitle?: string;
-  backButtonTitle?: string;
-  headerTitle: string;
+  actionButtonTitle?: string | React.ReactNode;
+  backButtonTitle?: string | React.ReactNode;
+  headerTitle: string | React.ReactNode;
   onActionButtonPress?: () => void;
   onBackPress?: () => void;
 };

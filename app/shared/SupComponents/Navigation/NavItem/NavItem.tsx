@@ -1,18 +1,18 @@
 import React, { useMemo } from 'react';
 import { TouchableHighlight } from 'react-native';
 import { View } from '@ant-design/react-native';
-import { NavRoutes } from '@/app';
 import { Colours } from '@constants';
 import { default as FIcon } from 'react-native-vector-icons/Feather';
 import { default as OctIcon } from 'react-native-vector-icons/Octicons';
 import { styles } from './styles';
+import { RootStackParamListKeys } from '@/app/context/NavigationContext';
 
 type NavItemProps = {
   activeKey: string;
   iconLib?: 'Feather' | 'Octicons';
   iconName: string;
-  navItemKey: NavRoutes;
-  setIsActive: (path: NavRoutes) => void;
+  navItemKey: RootStackParamListKeys;
+  setIsActive: <T extends RootStackParamListKeys>(path: T) => Promise<void>;
 };
 
 const NavItem: React.FC<NavItemProps> = ({ activeKey, iconLib = 'Feather', iconName, navItemKey, setIsActive }) => {

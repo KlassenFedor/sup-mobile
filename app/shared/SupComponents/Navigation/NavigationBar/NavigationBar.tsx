@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useContext, useEffect, useState } from 'react';
 import { View } from '@ant-design/react-native';
 import { NavItemType, NavItem } from '@sup-components';
 import { styles } from './styles';
-import { NavigationProp, NavRoutes } from '@/app';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { RootStackParamListKeys } from '../../../../context/NavigationContext';
+import { NavigationContext } from '../../../../index';
 
 const navItems: NavItemType[] = [
   { navItemKey: 'Home', iconName: 'home' },
@@ -12,11 +11,29 @@ const navItems: NavItemType[] = [
   { navItemKey: 'Profile', iconName: 'user' },
 ];
 
-const NavigationBar: React.FC<BottomTabBarProps> = ({ navigation, state }) => {
-  const [activeKey, setActiveKey] = useState<string>(state.routes[state.index].name);
+const NavigationBar: React.FC = () => {
+  const context = useContext(NavigationContext);
+  console.log('context', context);
+  if (!context || (context && Object.keys(context).length === 0)) return null;
+
+  const { navigation, state } = context;
+  const [stateCtx, setStateCtx] = useState(state);
+
+  useEffect(() => {
+    setStateCtx(state);
+  }, [state]);
+
+  console.log('stateCtx', stateCtx);
+  const tabsActiveIndex = stateCtx.index;
+  const tabsLayoutState = stateCtx.routes[tabsActiveIndex];
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  console.log('tabsLayoutState', tabsLayoutState);
+  const [activeKey, setActiveKey] = useState<RootStackParamListKeys>('Home');
+  // const [activeKey, setActiveKey] = useState<RootStackParamListKeys>(tabsLayoutState.routes[tabsLayoutState.index].name);
   console.log('Active Key:', activeKey);
 
-  const handleNavigation = async (path: string) => {
+  const handleNavigation = async <T extends RootStackParamListKeys>(path: T) => {
     setActiveKey(path);
     navigation.navigate(path);
   };

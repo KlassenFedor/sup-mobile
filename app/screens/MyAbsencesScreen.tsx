@@ -1,9 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FlatList, ActivityIndicator, Alert, RefreshControl } from 'react-native';
-import { ScreenDataWrapper, ScreenHeader, CardItem } from '@sup-components';
+import { FlatList, ActivityIndicator, Alert, RefreshControl, TouchableOpacity } from 'react-native';
+import { ScreenDataWrapper, ScreenHeader, CardItem, Button } from '@sup-components';
 import { AbsenceDTO } from '../shared/types';
+import Icon from 'react-native-vector-icons/Feather';
+import { Colours } from '../shared/constants';
+import { NavigationType } from '../context/NavigationContext';
 
 const cardData: AbsenceDTO[] = [
   {
@@ -70,9 +73,11 @@ const getAccessToken = async () => {
 };
 
 // Main screen component
-const MyAbsencesScreen: React.FC = () => {
-  const [data, setData] = useState<AbsenceDTO[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+const MyAbsencesScreen: React.FC<{
+  navigation: NavigationType;
+}> = ({ navigation }) => {
+  const [data, setData] = useState<AbsenceDTO[]>(cardData);
+  const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const API_URL = 'http://10.0.2.2:8000'; // Replace with your actual API endpoint
@@ -84,7 +89,7 @@ const MyAbsencesScreen: React.FC = () => {
       const token = await getAccessToken();
       const response = await axios.get(`${API_URL}/cards`, {
         headers: {
-          'Authorization': `Bearer ${token}`, // Attach the token in Authorization header
+          Authorization: `Bearer ${token}`, // Attach the token in Authorization header
         },
       });
       setData(response.data); // Ensure API returns an array of cards
@@ -103,26 +108,47 @@ const MyAbsencesScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetchData();
+    // fetchData();
   }, []);
+
+  const onAddAbsenceBtnPress = () => {
+    navigation.navigate('AddAbsenceScreen');
+  };
 
   return (
     <>
       <ScreenHeader headerTitle="Мои пропуски"></ScreenHeader>
       <ScreenDataWrapper style={{ paddingBottom: 0 }}>
-        {
-          loading ? (
-            <ActivityIndicator size="large" color="#007AFF" />
-          ) : (
+        {loading ? (
+          <ActivityIndicator size="large" color="#007AFF" />
+        ) : (
           <FlatList
             data={data}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <CardItem cardData={item} />}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => navigation.navigate('AbsenceDetails', { absenceId: item.id })}>
+                <CardItem cardData={item} />
+              </TouchableOpacity>
+            )}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            showsVerticalScrollIndicator={false}
           />
-          )
-        }
-        
+        )}
+        <Button
+          type="primary"
+          style={{
+            position: 'absolute',
+            bottom: 18,
+            right: 18,
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            boxShadow: '0px 6px 4px 0px rgba(0, 0, 0, 0.2)',
+          }}
+          onPress={onAddAbsenceBtnPress}
+        >
+          <Icon name="plus" size={24} color={Colours.WHITE} />
+        </Button>
       </ScreenDataWrapper>
     </>
   );

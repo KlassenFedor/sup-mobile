@@ -33,6 +33,7 @@ export const styles = {
         color: Colours.PRIMARY,
       },
       onPressed: {
+        backgroundColor: 'transparent',
         color: `${Colours.PRIMARY}99`,
       },
     }),

@@ -1,7 +1,7 @@
+import { RootStackParamListKeys } from '@/app/context/NavigationContext';
 import { OutlineGlyphMapType } from '@ant-design/icons-react-native';
-import { NavRoutes } from '@/app';
 
 export type IconNames = OutlineGlyphMapType;
 
 export type IconLibs = 'Feather' | 'Octicons';
-export type NavItemType = { navItemKey: NavRoutes; iconName: string; iconLib?: IconLibs };
+export type NavItemType = { navItemKey: RootStackParamListKeys; iconName: string; iconLib?: IconLibs };

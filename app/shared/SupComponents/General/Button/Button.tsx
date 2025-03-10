@@ -19,7 +19,7 @@ const Button: React.FC<SupButtonProps> = ({ children, styleType, style, ...props
 
   return (
     <AntButton
-      style={[stylesToAdd, commonBtnStyles, typeBasedStyles.common, isPressed && typeBasedStyles.onPressed]}
+      style={[commonBtnStyles, typeBasedStyles.common, isPressed && typeBasedStyles.onPressed, stylesToAdd]}
       activeStyle={typeBasedStyles.onPressed}
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
