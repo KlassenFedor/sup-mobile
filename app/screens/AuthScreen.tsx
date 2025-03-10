@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, Alert } from 'react-native';
+import { Text, StyleSheet, Alert, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Button, ContentBlock, ScreenDataWrapper, TextInput } from '@sup-components';
 import { Colours } from '@constants';
@@ -52,7 +52,7 @@ const AuthScreen: React.FC = () => {
           secureTextEntry
         />
         <Button type="primary" style={{ width: '100%', marginTop: 20 }} onPress={handleLogin}>
-          <span style={{ fontSize: 16 }}>ВОЙТИ</span>
+          <Text style={{ fontSize: 16 }}>ВОЙТИ</Text>
         </Button>
       </ContentBlock>
     </ScreenDataWrapper>

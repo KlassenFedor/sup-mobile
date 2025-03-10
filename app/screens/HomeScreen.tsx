@@ -14,7 +14,7 @@ interface UserData {
   course: string;
 }
 
-const HomeScreen: React.FC = ({ navigation }) => {
+const HomeScreen: React.FC = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const { setIsAuthenticated } = useAuth();
 
@@ -41,14 +41,6 @@ const HomeScreen: React.FC = ({ navigation }) => {
     await AsyncStorage.removeItem('refreshToken');
     setIsAuthenticated(false);
     // navigation.navigate('Auth');
-  };
-
-  const createAbsence = async () => {
-    navigation.navigate('CreateAbsence');
-  };
-
-  const viewMyAbsences = async () => {
-    navigation.navigate('MyAbsences');
   };
 
   return (

@@ -209,5 +209,5 @@ def get_profile(token: str = Depends(oauth2_scheme)):
 
     return user_profile
 
-
-# Run server: `uvicorn server:app --reload`
+# Install the required dependencies: pip install fastapi uvicorn python-jose[cryptography] passlib
+# Run server: uvicorn server:app --reload
