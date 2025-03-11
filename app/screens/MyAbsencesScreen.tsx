@@ -7,10 +7,12 @@ import { AbsenceDTO } from '../shared/types';
 import Icon from 'react-native-vector-icons/Feather';
 import { Colours } from '../shared/constants';
 import { NavigationType } from '../context/NavigationContext';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
 
 const cardData: AbsenceDTO[] = [
   {
-    id: '1',
+    id: '2021',
     files: ['file1.pdf', 'file2.pdf'],
     name: 'Пропуск № 2021',
     startDate: '03.03.2025',
@@ -18,7 +20,7 @@ const cardData: AbsenceDTO[] = [
     status: 'checking',
   },
   {
-    id: '2',
+    id: '956',
     files: [],
     name: 'Пропуск № 956',
     startDate: '01.02.2025',
@@ -26,7 +28,7 @@ const cardData: AbsenceDTO[] = [
     status: 'rejected',
   },
   {
-    id: '3',
+    id: '989',
     files: ['file1.pdf', 'file2.pdf'],
     name: 'Пропуск № 989',
     startDate: '07.02.2025',
@@ -34,7 +36,7 @@ const cardData: AbsenceDTO[] = [
     status: 'approved',
   },
   {
-    id: '4',
+    id: '1000',
     files: [],
     name: 'Пропуск № 1000',
     startDate: '28.02.2025',
@@ -42,7 +44,7 @@ const cardData: AbsenceDTO[] = [
     status: 'checking',
   },
   {
-    id: '5',
+    id: '1010',
     files: [],
     name: 'Пропуск № 1010',
     startDate: '05.03.2025',
@@ -50,7 +52,7 @@ const cardData: AbsenceDTO[] = [
     status: 'rejected',
   },
   {
-    id: '6',
+    id: '1810',
     files: ['file1.pdf', 'file2.pdf'],
     name: 'Пропуск № 1810',
     startDate: '13.03.2025',
@@ -58,6 +60,12 @@ const cardData: AbsenceDTO[] = [
     status: 'checking',
   },
 ];
+
+type RootStackParamList = {
+  CreateAbsence: undefined;
+  AbsenceDetails: { absenceId: string };
+};
+type MyAbsencesScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CreateAbsence', 'AbsenceDetails'>;
 
 const getAccessToken = async () => {
   try {
@@ -73,12 +81,11 @@ const getAccessToken = async () => {
 };
 
 // Main screen component
-const MyAbsencesScreen: React.FC<{
-  navigation: NavigationType;
-}> = ({ navigation }) => {
+const MyAbsencesScreen: React.FC = () => {
   const [data, setData] = useState<AbsenceDTO[]>(cardData);
   const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const navigation = useNavigation<MyAbsencesScreenNavigationProp>();
 
   const API_URL = 'http://10.0.2.2:8000'; // Replace with your actual API endpoint
 
@@ -112,7 +119,7 @@ const MyAbsencesScreen: React.FC<{
   }, []);
 
   const onAddAbsenceBtnPress = () => {
-    navigation.navigate('AddAbsenceScreen');
+    navigation.navigate('CreateAbsence');
   };
 
   return (

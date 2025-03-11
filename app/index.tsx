@@ -1,65 +1,84 @@
-import React, { createContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationIndependentTree, useNavigationState } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationBar } from '@sup-components';
-
-import AuthProvider, { useAuth } from './context/AuthContext';
+import { createBottomTabNavigator, BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { NavigationIndependentTree } from '@react-navigation/native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { useAuth } from './context/AuthContext';
+import AuthProvider from './context/AuthContext';
 import AuthScreen from './screens/AuthScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MyAbsencesScreen from './screens/MyAbsencesScreen';
 import CreateAbsenceScreen from './screens/CreateAbsenceScreen';
 import AbsenceDetailsScreen from './screens/AbsenceDetailsScreen';
 import HomeScreen from './screens/HomeScreen';
+import { NavItemType } from '@sup-components';
+import Icon from 'react-native-vector-icons/Octicons';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Define navigation types
-export type RootStackParamList = {
-  Auth: undefined;
-  TabsLayout: undefined;
-  MyAbsences: undefined;
-  Profile: undefined;
-  CreateAbsence: undefined;
-  AbsenceDetails: undefined;
+// Define tab items based on NavigationBar.tsx
+const navItems: NavItemType[] = [
+  { navItemKey: 'Home', iconName: 'home' },
+  { navItemKey: 'MyAbsences', iconName: 'list-unordered', iconLib: 'Octicons' },
+  { navItemKey: 'Profile', iconName: 'person' },
+];
+
+// Custom Bottom Tab Bar (FIXED: Added Proper Types)
+const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
+  const [activeKey, setActiveKey] = useState(state.routes[state.index].name);
+
+  useEffect(() => {
+    setActiveKey(state.routes[state.index].name);
+  }, [state]);
+
+  return (
+    <View style={styles.navBarWrapper}>
+      {navItems.map((navItem, idx) => {
+        const isActive = activeKey === navItem.navItemKey;
+        return (
+          <TouchableOpacity
+            key={idx}
+            style={styles.tabButton}
+            onPress={() => {
+              setActiveKey(navItem.navItemKey);
+              navigation.navigate(navItem.navItemKey as never);
+            }}
+          >
+            <Icon
+              name={navItem.iconName}
+              size={24}
+              color={isActive ? '#FFA500' : '#808080'}
+            />
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
 };
 
-export interface NavigationContextType {
-  state: any;
-}
-
-export const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
-
-// Bottom Tab Navigation
-const AppTabs = () => (
-  <Tab.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
+// Bottom Tab Navigator
+const TabsLayout = () => (
+  <Tab.Navigator
+    initialRouteName="Home"
+    screenOptions={{ headerShown: false }}
+    tabBar={(props) => <CustomTabBar {...props} />} // FIXED: Now properly typed
+  >
     <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="MyAbsences" component={MyAbsencesScreen} />
     <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
 );
 
-// Layout for Bottom Tabs with a navigation bar
-const TabsLayout: React.FC<any> = ({ navigation }) => {
-  const state = useNavigationState((state) => state);
-  return (
-    <NavigationContext.Provider value={{ state }}>
-      <AppTabs />
-      <NavigationBar />
-    </NavigationContext.Provider>
-  );
-};
-
 // Main App Navigator
 const AppNavigator = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <Stack.Navigator initialRouteName={isAuthenticated ? 'TabsLayout' : 'Auth'} screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isAuthenticated ? (
         <>
-          <Stack.Screen name="TabsLayout" component={TabsLayout} />
+          <Stack.Screen name="Tabs" component={TabsLayout} />
           <Stack.Screen name="CreateAbsence" component={CreateAbsenceScreen} />
           <Stack.Screen name="AbsenceDetails" component={AbsenceDetailsScreen} />
         </>
@@ -70,7 +89,7 @@ const AppNavigator = () => {
   );
 };
 
-// Root Component (Fixed: Removed NavigationContainer)
+// Root Component
 export default function App() {
   return (
     <NavigationIndependentTree>
@@ -80,3 +99,20 @@ export default function App() {
     </NavigationIndependentTree>
   );
 }
+
+// Styles for Custom Navigation Bar
+const styles = StyleSheet.create({
+  navBarWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    height: 60,
+    borderTopWidth: 1,
+    borderTopColor: '#dddddd',
+  },
+  tabButton: {
+    padding: 10,
+    alignItems: 'center',
+  },
+});

@@ -29,14 +29,14 @@ const ScreenHeader: React.FC<ScreenHeaderProps> = ({
           <Flex.Item style={commonStyles.alignItemsStart}>
             {backButtonTitle && (
               <Button onPress={onBackPress} styleType="blank">
-                <span style={styles.blankBtnText}>{backButtonTitle}</span>
+                <Text style={styles.blankBtnText}>{backButtonTitle}</Text>
               </Button>
             )}
           </Flex.Item>
           <Flex.Item style={commonStyles.alignItemsEnd}>
             {actionButtonTitle && (
               <Button onPress={onActionButtonPress} styleType="blank">
-                <span style={styles.blankBtnText}>{actionButtonTitle}</span>
+                <Text style={styles.blankBtnText}>{actionButtonTitle}</Text>
               </Button>
             )}
           </Flex.Item>
