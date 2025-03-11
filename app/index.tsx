@@ -31,7 +31,7 @@ const AppTabs = () => (
   >
     <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="MyAbsences" component={MyAbsencesScreen} />
-    <Tab.Screen name="Создать пропуск" component={CreateAbsenceScreen} />
+    <Tab.Screen name="CreateAbsence" component={CreateAbsenceScreen} />
     <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
 );

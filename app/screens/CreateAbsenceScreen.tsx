@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import axios from 'axios';
+
+const API_URL = 'http://10.0.2.2:8000';
 
 const CreateAbsenceScreen: React.FC = () => {
   const [startDate, setStartDate] = useState(new Date());
@@ -23,11 +26,34 @@ const CreateAbsenceScreen: React.FC = () => {
   };
 
   // Handle form submission
-  const handleSubmit = () => {
-    console.log('Start Date:', startDate.toISOString().split('T')[0]);
-    console.log('End Date:', endDate.toISOString().split('T')[0]);
-    console.log('Attached Files:', attachedFiles);
-    alert('Данные успешно отправлены!');
+  const handleSubmit = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('startDate', startDate.toISOString());
+      formData.append('endDate', endDate.toISOString());
+  
+      // Append files
+      attachedFiles.forEach((file, index) => {
+        formData.append(`files`, {
+          uri: file.uri,
+          name: file.name,
+          type: file.mimeType || 'application/octet-stream', // Default type if missing
+        } as any); // TypeScript workaround for FormData
+      });
+  
+      // Send request
+      const response = await axios.post(`${API_URL}/cards`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      Alert.alert('Успех', 'Данные успешно отправлены!');
+      console.log(response.data);
+    } catch (error) {
+      console.error('Ошибка отправки:', error);
+      Alert.alert('Ошибка', 'Не удалось отправить форму, попробуйте позже.');
+    }
   };
 
   return (
