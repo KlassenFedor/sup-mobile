@@ -2,56 +2,56 @@ import React, { createContext } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationIndependentTree, useNavigationState } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationStateType, NavigationType } from './context/NavigationContext';
-import { useAuth } from './context/AuthContext';
-import AuthProvider from './context/AuthContext';
+import { NavigationBar } from '@sup-components';
+
+import AuthProvider, { useAuth } from './context/AuthContext';
 import AuthScreen from './screens/AuthScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MyAbsencesScreen from './screens/MyAbsencesScreen';
 import CreateAbsenceScreen from './screens/CreateAbsenceScreen';
 import AbsenceDetailsScreen from './screens/AbsenceDetailsScreen';
-
-import { NavigationBar } from '@sup-components';
 import HomeScreen from './screens/HomeScreen';
-
-export type RootStackParamList = {
-  Auth: undefined;
-  Home: undefined;
-  MyAbsences: undefined;
-  Profile: undefined;
-  CreateAbsence: undefined;
-};
-
-export interface NavigationContextType {
-  navigation: NavigationType;
-  state: NavigationStateType;
-}
-
-export type NavRoutes = keyof RootStackParamList;
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-export const NavigationContext = createContext<NavigationContextType>({});
+// Define navigation types
+export type RootStackParamList = {
+  Auth: undefined;
+  TabsLayout: undefined;
+  MyAbsences: undefined;
+  Profile: undefined;
+  CreateAbsence: undefined;
+  AbsenceDetails: undefined;
+};
 
+export interface NavigationContextType {
+  state: any;
+}
+
+export const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
+
+// Bottom Tab Navigation
 const AppTabs = () => (
-  <Tab.Navigator initialRouteName="Home" screenOptions={{ tabBarStyle: { display: 'none' }, headerShown: false }}>
+  <Tab.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
     <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="MyAbsences" component={MyAbsencesScreen} />
     <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
 );
 
-const TabsLayout: React.FC = ({ navigation }) => {
+// Layout for Bottom Tabs with a navigation bar
+const TabsLayout: React.FC<any> = ({ navigation }) => {
   const state = useNavigationState((state) => state);
   return (
-    <NavigationContext.Provider value={{ navigation, state }}>
+    <NavigationContext.Provider value={{ state }}>
       <AppTabs />
       <NavigationBar />
     </NavigationContext.Provider>
   );
 };
 
+// Main App Navigator
 const AppNavigator = () => {
   const { isAuthenticated } = useAuth();
 
@@ -60,7 +60,7 @@ const AppNavigator = () => {
       {isAuthenticated ? (
         <>
           <Stack.Screen name="TabsLayout" component={TabsLayout} />
-          <Stack.Screen name="AddAbsenceScreen" component={CreateAbsenceScreen} />
+          <Stack.Screen name="CreateAbsence" component={CreateAbsenceScreen} />
           <Stack.Screen name="AbsenceDetails" component={AbsenceDetailsScreen} />
         </>
       ) : (
@@ -70,6 +70,7 @@ const AppNavigator = () => {
   );
 };
 
+// Root Component (Fixed: Removed NavigationContainer)
 export default function App() {
   return (
     <NavigationIndependentTree>

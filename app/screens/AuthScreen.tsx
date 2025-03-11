@@ -52,7 +52,7 @@ const AuthScreen: React.FC = () => {
           secureTextEntry
         />
         <Button type="primary" style={{ width: '100%', marginTop: 20 }} onPress={handleLogin}>
-          <span style={{ fontSize: 16 }}>ВОЙТИ</span>
+          <Text style={{ fontSize: 16 }}>ВОЙТИ</Text>
         </Button>
       </ContentBlock>
     </ScreenDataWrapper>
