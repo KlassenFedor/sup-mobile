@@ -1,76 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator, BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationIndependentTree } from '@react-navigation/native';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { useAuth } from './context/AuthContext';
-import AuthProvider from './context/AuthContext';
+import AuthProvider, { useAuth } from './context/AuthContext';
+import { NavigationBar } from '@sup-components';
+
 import AuthScreen from './screens/AuthScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MyAbsencesScreen from './screens/MyAbsencesScreen';
 import CreateAbsenceScreen from './screens/CreateAbsenceScreen';
 import AbsenceDetailsScreen from './screens/AbsenceDetailsScreen';
 import HomeScreen from './screens/HomeScreen';
-import { NavItemType } from '@sup-components';
-import Icon from 'react-native-vector-icons/Octicons';
+import EditAbsenceScreen from './screens/EditAbsenceScreen';
+
+export type RootStackParamList = {
+  Auth: undefined;
+  Home: undefined;
+  TabsLayout: undefined;
+  MyAbsences: undefined;
+  Profile: undefined;
+  CreateAbsence: undefined;
+  EditAbsence: undefined;
+  AbsenceDetails: undefined;
+};
+
+export interface NavigationContextType {
+  navigation: NavigationType;
+  state: any;
+}
+
+export type NavRoutes = keyof RootStackParamList;
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Define tab items based on NavigationBar.tsx
-const navItems: NavItemType[] = [
-  { navItemKey: 'Home', iconName: 'home' },
-  { navItemKey: 'MyAbsences', iconName: 'list-unordered', iconLib: 'Octicons' },
-  { navItemKey: 'Profile', iconName: 'person' },
-];
+export const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
 
-// Custom Bottom Tab Bar (FIXED: Added Proper Types)
-const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
-  const [activeKey, setActiveKey] = useState(state.routes[state.index].name);
-
-  useEffect(() => {
-    setActiveKey(state.routes[state.index].name);
-  }, [state]);
-
-  return (
-    <View style={styles.navBarWrapper}>
-      {navItems.map((navItem, idx) => {
-        const isActive = activeKey === navItem.navItemKey;
-        return (
-          <TouchableOpacity
-            key={idx}
-            style={styles.tabButton}
-            onPress={() => {
-              setActiveKey(navItem.navItemKey);
-              navigation.navigate(navItem.navItemKey as never);
-            }}
-          >
-            <Icon
-              name={navItem.iconName}
-              size={24}
-              color={isActive ? '#FFA500' : '#808080'}
-            />
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  );
-};
-
-// Bottom Tab Navigator
 const TabsLayout = () => (
-  <Tab.Navigator
-    initialRouteName="Home"
-    screenOptions={{ headerShown: false }}
-    tabBar={(props) => <CustomTabBar {...props} />} // FIXED: Now properly typed
-  >
+  <Tab.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }} tabBar={(props) => <NavigationBar {...props} />}>
     <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="MyAbsences" component={MyAbsencesScreen} />
     <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
 );
 
-// Main App Navigator
 const AppNavigator = () => {
   const { isAuthenticated } = useAuth();
 
@@ -80,6 +53,7 @@ const AppNavigator = () => {
         <>
           <Stack.Screen name="Tabs" component={TabsLayout} />
           <Stack.Screen name="CreateAbsence" component={CreateAbsenceScreen} />
+          <Stack.Screen name="EditAbsence" component={EditAbsenceScreen} />
           <Stack.Screen name="AbsenceDetails" component={AbsenceDetailsScreen} />
         </>
       ) : (
@@ -100,19 +74,19 @@ export default function App() {
   );
 }
 
-// Styles for Custom Navigation Bar
-const styles = StyleSheet.create({
-  navBarWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    height: 60,
-    borderTopWidth: 1,
-    borderTopColor: '#dddddd',
-  },
-  tabButton: {
-    padding: 10,
-    alignItems: 'center',
-  },
-});
+// // Styles for Custom Navigation Bar
+// const styles = StyleSheet.create({
+//   navBarWrapper: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-around',
+//     alignItems: 'center',
+//     backgroundColor: '#ffffff',
+//     height: 60,
+//     borderTopWidth: 1,
+//     borderTopColor: '#dddddd',
+//   },
+//   tabButton: {
+//     padding: 10,
+//     alignItems: 'center',
+//   },
+// });

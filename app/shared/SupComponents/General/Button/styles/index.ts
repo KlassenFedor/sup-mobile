@@ -7,6 +7,12 @@ export const styles = {
       height: 36,
       textAlign: 'center',
     },
+    wrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      flexWrap: 'wrap',
+    },
   }),
   type: {
     blank: StyleSheet.create({
@@ -14,11 +20,13 @@ export const styles = {
         backgroundColor: 'none',
         borderRadius: 0,
         borderWidth: 0,
-        color: Colours.SECONDARY,
-        fontSize: 18,
         height: 'auto',
         paddingLeft: 0,
         paddingRight: 0,
+      },
+      cardText: {
+        color: Colours.SECONDARY,
+        fontSize: 16,
       },
       onPressed: {
         color: `${Colours.SECONDARY}99`,
@@ -30,7 +38,10 @@ export const styles = {
         borderColor: Colours.PRIMARY,
         borderStyle: 'solid',
         borderWidth: 1,
+      },
+      cardText: {
         color: Colours.PRIMARY,
+        fontSize: 16,
       },
       onPressed: {
         backgroundColor: 'transparent',
@@ -43,7 +54,10 @@ export const styles = {
         borderColor: Colours.PRIMARY,
         borderStyle: 'solid',
         borderWidth: 1,
+      },
+      cardText: {
         color: Colours.WHITE,
+        fontSize: 16,
       },
       onPressed: {
         backgroundColor: Colours.PRIMARY_DARKEN_10,
@@ -52,6 +66,7 @@ export const styles = {
     }),
     warning: StyleSheet.create({
       common: {},
+      cardText: {},
       onPressed: {},
     }),
   },

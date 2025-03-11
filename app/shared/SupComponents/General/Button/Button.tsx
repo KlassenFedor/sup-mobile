@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button as AntButton, ButtonProps } from '@ant-design/react-native';
+import { Button as AntButton, ButtonProps, Text, View } from '@ant-design/react-native';
 import { styles } from './styles';
 import { StylesType } from '@common/types';
 import { handleStylesToAdd } from '@common/helpers';
@@ -8,16 +8,17 @@ type SupButtonProps = ButtonProps & {
   children: React.ReactNode;
   styleType?: 'primary' | 'warning' | 'ghost' | 'blank';
   style?: StylesType;
+  wrap?: boolean;
 };
 
-const Button: React.FC<SupButtonProps> = ({ children, styleType, style, ...props }) => {
+const Button: React.FC<SupButtonProps> = ({ children, styleType, style, wrap = false, ...props }) => {
   const [isPressed, setIsPressed] = useState(false);
 
   const commonBtnStyles = styles.all.common;
   const typeBasedStyles = styles.type[styleType ? styleType : props.type || 'primary'];
   const stylesToAdd = handleStylesToAdd(style);
 
-  return (
+  const ButtonToRender = () => (
     <AntButton
       style={[commonBtnStyles, typeBasedStyles.common, isPressed && typeBasedStyles.onPressed, stylesToAdd]}
       activeStyle={typeBasedStyles.onPressed}
@@ -25,8 +26,16 @@ const Button: React.FC<SupButtonProps> = ({ children, styleType, style, ...props
       onPressOut={() => setIsPressed(false)}
       {...props}
     >
-      {children}
+      <Text style={typeBasedStyles.cardText}>{children}</Text>
     </AntButton>
+  );
+
+  return wrap ? (
+    <View style={styles.all.wrapper}>
+      <ButtonToRender />
+    </View>
+  ) : (
+    <ButtonToRender />
   );
 };
 

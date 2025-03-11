@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../context/AuthContext';
-import { StackScreenProps } from '@react-navigation/stack';
-import { RootStackParamList } from '../index';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { CardItem, ScreenDataWrapper, ScreenHeader } from '@sup-components';
 import { AbsenceDTO } from '../shared/types';
-import { FlatList } from 'react-native';
+import { FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { NavigationType } from '../context/NavigationContext';
 
 interface UserData {
   name: string;
@@ -16,9 +14,14 @@ interface UserData {
   course: string;
 }
 
+type RootStackParamList = {
+  AbsenceDetails: { absenceId: string };
+};
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'AbsenceDetails'>;
+
 const cardData: AbsenceDTO[] = [
   {
-    id: '1',
+    id: '2021',
     files: ['file1.pdf', 'file2.pdf'],
     name: 'Пропуск № 2021',
     startDate: '03.03.2025',
@@ -26,7 +29,7 @@ const cardData: AbsenceDTO[] = [
     status: 'checking',
   },
   {
-    id: '4',
+    id: '1000',
     files: [],
     name: 'Пропуск № 1000',
     startDate: '28.02.2025',
@@ -34,7 +37,7 @@ const cardData: AbsenceDTO[] = [
     status: 'checking',
   },
   {
-    id: '6',
+    id: '1810',
     files: ['file1.pdf', 'file2.pdf'],
     name: 'Пропуск № 1810',
     startDate: '13.03.2025',
@@ -44,7 +47,7 @@ const cardData: AbsenceDTO[] = [
 ];
 
 const HomeScreen: React.FC = () => {
-  const { navigation } = useNavigation() as NavigationType;
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   // const [userData, setUserData] = useState<UserData | null>(null);
   // const { setIsAuthenticated } = useAuth();
 
@@ -88,7 +91,11 @@ const HomeScreen: React.FC = () => {
         <FlatList
           data={cardData}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <CardItem cardData={item} />}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => navigation.navigate('AbsenceDetails', { absenceId: item.id })}>
+              <CardItem cardData={item} />
+            </TouchableOpacity>
+          )}
           showsVerticalScrollIndicator={false}
         />
       </ScreenDataWrapper>

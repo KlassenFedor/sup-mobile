@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { NavItemType, NavItem } from '@sup-components';
 import { styles } from './styles';
-import { NavigationContext } from '../../../../index';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 const navItems: NavItemType[] = [
   { navItemKey: 'Home', iconName: 'home' },
@@ -10,19 +10,10 @@ const navItems: NavItemType[] = [
   { navItemKey: 'Profile', iconName: 'user' },
 ];
 
-const NavigationBar: React.FC = () => {
-  const context = useContext(NavigationContext);
-
-  if (!context) return null;
-
-  const { navigation, state } = context;
-  const [activeKey, setActiveKey] = useState<string>('Home');
-
+const NavigationBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
+  const [activeKey, setActiveKey] = useState(state.routes[state.index].name);
   useEffect(() => {
-    if (state && state.routes) {
-      const activeRouteName = state.routes[state.index].name;
-      setActiveKey(activeRouteName);
-    }
+    setActiveKey(state.routes[state.index].name);
   }, [state]);
 
   const handleNavigation = (path: string) => {
@@ -32,16 +23,19 @@ const NavigationBar: React.FC = () => {
 
   return (
     <View style={styles.navBarWrapper}>
-      {navItems.map((navItem, idx) => (
-        <NavItem
-          key={idx}
-          activeKey={activeKey}
-          iconLib={navItem.iconLib}
-          iconName={navItem.iconName}
-          navItemKey={navItem.navItemKey}
-          setIsActive={handleNavigation}
-        />
-      ))}
+      {navItems.map((navItem, idx) => {
+        const isActive = activeKey === navItem.navItemKey;
+        return (
+          <NavItem
+            key={idx}
+            isActive={isActive}
+            iconLib={navItem.iconLib}
+            iconName={navItem.iconName}
+            navItemKey={navItem.navItemKey}
+            setIsActive={handleNavigation}
+          />
+        );
+      })}
     </View>
   );
 };

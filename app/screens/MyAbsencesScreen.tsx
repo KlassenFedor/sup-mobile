@@ -6,10 +6,9 @@ import { ScreenDataWrapper, ScreenHeader, CardItem, Button } from '@sup-componen
 import { AbsenceDTO } from '../shared/types';
 import Icon from 'react-native-vector-icons/Feather';
 import { Colours } from '../shared/constants';
-import { NavigationType } from '../context/NavigationContext';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
-import { API_URL } from '@constants';
+import { API_URL } from '../shared/constants';
 
 const cardData: AbsenceDTO[] = [
   {
