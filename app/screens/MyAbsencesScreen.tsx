@@ -9,6 +9,7 @@ import { Colours } from '../shared/constants';
 import { NavigationType } from '../context/NavigationContext';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
+import { API_URL } from '@constants';
 
 const cardData: AbsenceDTO[] = [
   {
@@ -86,8 +87,6 @@ const MyAbsencesScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const navigation = useNavigation<MyAbsencesScreenNavigationProp>();
-
-  const API_URL = 'http://10.0.2.2:8000'; // Replace with your actual API endpoint
 
   // Fetch data from API
   const fetchData = async () => {

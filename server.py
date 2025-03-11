@@ -209,5 +209,32 @@ def get_profile(token: str = Depends(oauth2_scheme)):
 
     return user_profile
 
+# @app.post("/update-abscence", response_model=CardItem)
+# def update_absence(card: CardItem, token: str = Depends(oauth2_scheme)):
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#         username: str = payload.get("sub")
+#         if username is None:
+#             raise HTTPException(status_code=401, detail="Invalid token")
+#     except JWTError:
+#         raise HTTPException(status_code=401, detail="Invalid token")
 
+#     card_id = card.id
+#     updated_card = {
+#         "id": card_id,
+#         "title": card.title,
+#         "startDate": card.startDate,
+#         "endDate": card.endDate,
+#         "status": card.status,
+#         "files": card.files,
+#     }
+
+#     if username not in fake_cards_db:
+#         raise HTTPException(status_code=404, detail="User not found")
+
+#     fake_cards_db[username].append(updated_card)
+
+#     return updated_card
+
+# Install the required dependencies: pip install fastapi uvicorn python-jose[cryptography] passlib
 # Run server: `uvicorn server:app --reload`

@@ -5,8 +5,8 @@ import { Button, ContentBlock, ScreenDataWrapper, TextInput } from '@sup-compone
 import { Colours } from '@constants';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { API_URL } from '@constants';
 
-const API_URL = 'http://10.0.2.2:8000'; // Replace with your actual API endpoint
 
 const AuthScreen: React.FC = () => {
   const [login, setLogin] = useState<string>('');

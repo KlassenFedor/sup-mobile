@@ -6,6 +6,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAuth } from '../context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
+import { API_URL } from '@constants';
 
 interface UserProfile {
   name: string;
@@ -26,7 +27,6 @@ const ProfileScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { logout } = useAuth();
 
-  const API_URL = 'http://10.0.2.2:8000'; 
   const navigation = useNavigation<ProfileScreenNavigationProp>();
 
   const handleLogout = async () => {

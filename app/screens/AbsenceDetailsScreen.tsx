@@ -11,14 +11,15 @@ type RootStackParamList = {
 };
 type AbsenceDetailsRouteProp = RouteProp<RootStackParamList, 'AbsenceDetails'>;
 
-const AbsenceDetailsScreen: React.FC = () => {
+const AbsenceDetailsScreen: React.FC<{
+  navigation: NavigationType;
+}> = ({ navigation }) => {
   const route = useRoute<AbsenceDetailsRouteProp>();
   const { absenceId } = route.params;
   console.log(route.params)
-  const navigation = useNavigation<AbsenceDetailsRouteProp>();
-  // const goBack = () => {
-  //   navigation.goBack();
-  // };
+  const goBack = () => {
+    navigation.goBack();
+  };
 
   return (
     <>
@@ -30,7 +31,7 @@ const AbsenceDetailsScreen: React.FC = () => {
           </Text>
         }
         backButtonTitle={<Icon name="arrow-left" size={24} color={Colours.SECONDARY} />}
-        // onBackPress={goBack}
+        onBackPress={goBack}
         actionButtonTitle="редактировать"
         onActionButtonPress={() => {}}
       ></ScreenHeader>
