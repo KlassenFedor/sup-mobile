@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Text, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Button, ContentBlock, ScreenDataWrapper, TextInput } from '@sup-components';
+import { Button, ContentBlock, ScreenDataWrapper, Span, TextInput } from '@sup-components';
 import { Colours } from '@constants';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -15,7 +15,7 @@ const AuthScreen: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`${API_URL}/login`, { "username": login, "password": password });
+      const response = await axios.post(`${API_URL}/login`, { username: login, password: password });
       const accessToken = response.data['access_token'];
       const refreshToken = response.data['refresh_token'];
 
@@ -26,7 +26,7 @@ const AuthScreen: React.FC = () => {
       setIsAuthenticated(true);
     } catch (error) {
       Alert.alert('Login Failed', 'Invalid username or password');
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -52,7 +52,7 @@ const AuthScreen: React.FC = () => {
           secureTextEntry
         />
         <Button type="primary" style={{ width: '100%', marginTop: 20 }} onPress={handleLogin}>
-          <span style={{ fontSize: 16 }}>ВОЙТИ</span>
+          <Span style={{ fontSize: 16 }}>ВОЙТИ</Span>
         </Button>
       </ContentBlock>
     </ScreenDataWrapper>
@@ -64,7 +64,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
     const refreshToken = await AsyncStorage.getItem('refreshToken');
     if (!refreshToken) throw new Error('No refresh token available');
 
-    const response = await axios.post(`${API_URL}/refresh`, { 'token': refreshToken });
+    const response = await axios.post(`${API_URL}/refresh`, { token: refreshToken });
     const accessToken = response.data['access_token'];
     const newRefreshToken = response.data['refresh_token'];
 

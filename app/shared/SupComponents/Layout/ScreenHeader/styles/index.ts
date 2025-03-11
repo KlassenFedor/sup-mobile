@@ -4,6 +4,7 @@ import { Colours } from '@constants';
 export const styles = StyleSheet.create({
   blankBtnText: {
     color: Colours.SECONDARY,
+    fontSize: 16,
   },
   headerTitle: {
     color: Colours.PRIMARY,

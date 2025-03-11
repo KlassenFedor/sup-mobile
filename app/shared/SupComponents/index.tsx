@@ -1,5 +1,5 @@
 export type { Rule, TextInputProps } from './FormField';
-export { TextInput } from './FormField';
+export { TextInput, FormFieldsBlockTitle, FormBlockView, FormBlockViewField } from './FormField';
 
 export { Button, CardItem } from './General';
 

@@ -17,7 +17,7 @@ const TextInput: React.FC<TextInputProps> = ({ label, rules, ...props }) => {
 
   return (
     <View style={styles.container}>
-      <Span styles={styles.labelBlock}>
+      <Span style={styles.labelBlock}>
         <View style={inputRequired[isRequired(rules)]}>*</View>
         <View>{label}</View>
       </Span>

@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View } from '@ant-design/react-native';
+import React, { useEffect, useState } from 'react';
+import { View } from 'react-native';
 import { NavItemType, NavItem } from '@sup-components';
 import { styles } from './styles';
-import { RootStackParamListKeys } from '../../../../context/NavigationContext';
-import { NavigationContext } from '../../../../index';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 const navItems: NavItemType[] = [
   { navItemKey: 'Home', iconName: 'home' },
@@ -11,45 +10,32 @@ const navItems: NavItemType[] = [
   { navItemKey: 'Profile', iconName: 'user' },
 ];
 
-const NavigationBar: React.FC = () => {
-  const context = useContext(NavigationContext);
-  console.log('context', context);
-  if (!context || (context && Object.keys(context).length === 0)) return null;
-
-  const { navigation, state } = context;
-  const [stateCtx, setStateCtx] = useState(state);
-
+const NavigationBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
+  const [activeKey, setActiveKey] = useState(state.routes[state.index].name);
   useEffect(() => {
-    setStateCtx(state);
+    setActiveKey(state.routes[state.index].name);
   }, [state]);
 
-  console.log('stateCtx', stateCtx);
-  const tabsActiveIndex = stateCtx.index;
-  const tabsLayoutState = stateCtx.routes[tabsActiveIndex];
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  console.log('tabsLayoutState', tabsLayoutState);
-  const [activeKey, setActiveKey] = useState<RootStackParamListKeys>('Home');
-  // const [activeKey, setActiveKey] = useState<RootStackParamListKeys>(tabsLayoutState.routes[tabsLayoutState.index].name);
-  console.log('Active Key:', activeKey);
-
-  const handleNavigation = async <T extends RootStackParamListKeys>(path: T) => {
+  const handleNavigation = (path: string) => {
     setActiveKey(path);
     navigation.navigate(path);
   };
 
   return (
     <View style={styles.navBarWrapper}>
-      {navItems.map((navItem, idx) => (
-        <NavItem
-          key={idx}
-          activeKey={activeKey}
-          iconLib={navItem.iconLib}
-          iconName={navItem.iconName}
-          navItemKey={navItem.navItemKey}
-          setIsActive={handleNavigation}
-        />
-      ))}
+      {navItems.map((navItem, idx) => {
+        const isActive = activeKey === navItem.navItemKey;
+        return (
+          <NavItem
+            key={idx}
+            isActive={isActive}
+            iconLib={navItem.iconLib}
+            iconName={navItem.iconName}
+            navItemKey={navItem.navItemKey}
+            setIsActive={handleNavigation}
+          />
+        );
+      })}
     </View>
   );
 };

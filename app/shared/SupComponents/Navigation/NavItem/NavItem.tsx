@@ -8,16 +8,14 @@ import { styles } from './styles';
 import { RootStackParamListKeys } from '@/app/context/NavigationContext';
 
 type NavItemProps = {
-  activeKey: string;
+  isActive: boolean;
   iconLib?: 'Feather' | 'Octicons';
   iconName: string;
   navItemKey: RootStackParamListKeys;
-  setIsActive: <T extends RootStackParamListKeys>(path: T) => Promise<void>;
+  setIsActive: (path: string) => void;
 };
 
-const NavItem: React.FC<NavItemProps> = ({ activeKey, iconLib = 'Feather', iconName, navItemKey, setIsActive }) => {
-  const isActive = activeKey === navItemKey;
-
+const NavItem: React.FC<NavItemProps> = ({ isActive, iconLib = 'Feather', iconName, navItemKey, setIsActive }) => {
   const fcStyles = useMemo(() => {
     return {
       container: styles.navItemContainer,
