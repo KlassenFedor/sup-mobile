@@ -1,12 +1,11 @@
 import React from 'react';
 import { Card, Flex, View } from '@ant-design/react-native';
 import { Text } from '@ant-design/react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { AbsenceDTO, AbsenceStatus } from '@/app/shared/types';
 import { AbsenceStatusToRussian, Colours } from '@constants';
 import { styles } from './styles';
 import { Alert } from 'react-native';
-import { Button, Span } from '@sup-components';
+import { Button, Icon, Span } from '@sup-components';
 
 type CardProps = {
   cardData: AbsenceDTO;
@@ -43,7 +42,7 @@ const CardItem: React.FC<CardProps> = ({ cardData }) => {
           <Flex justify="start" style={{ marginBottom: 8 }}>
             <Span style={styles.cardTitleText}>{name}</Span>
             <Icon
-              size={20}
+              iconLib="MaterialCommunityIcons"
               name={hasAttachedDocs ? 'file-check-outline' : 'file-remove-outline'}
               color={hasAttachedDocs ? Colours.PRIMARY : '#A4A4A4'}
             />

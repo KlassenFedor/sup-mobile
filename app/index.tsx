@@ -12,6 +12,7 @@ import CreateAbsenceScreen from './screens/CreateAbsenceScreen';
 import AbsenceDetailsScreen from './screens/AbsenceDetailsScreen';
 import HomeScreen from './screens/HomeScreen';
 import EditAbsenceScreen from './screens/EditAbsenceScreen';
+import { Provider } from '@ant-design/react-native';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -65,10 +66,12 @@ const AppNavigator = () => {
 
 export default function App() {
   return (
-    <NavigationIndependentTree>
-      <AuthProvider>
-        <AppNavigator />
-      </AuthProvider>
-    </NavigationIndependentTree>
+    <Provider>
+      <NavigationIndependentTree>
+        <AuthProvider>
+          <AppNavigator />
+        </AuthProvider>
+      </NavigationIndependentTree>
+    </Provider>
   );
 }
