@@ -4,6 +4,7 @@ import { StylesType } from '@common/types';
 import { handleStylesToAdd } from '@common/helpers';
 
 type ContentBlockProps = {
+  flexDirection?: 'column' | 'row';
   alignItems?: 'center' | 'flex-start' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';
   children: React.ReactNode;
   justifyContent?: 'center' | 'flex-start' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';
@@ -17,12 +18,12 @@ type ContentBlockProps = {
  *     с отступом внутри контейнера в 8px
  * Доступные аргументы: justifyContent, alignItems, styles (добавляются к стилям по умолчанию)
  */
-const ContentBlock: React.FC<ContentBlockProps> = ({ alignItems, children, justifyContent, style }) => {
+const ContentBlock: React.FC<ContentBlockProps> = ({ flexDirection, alignItems, children, justifyContent, style }) => {
   return (
     <View
       style={{
         alignItems: alignItems,
-        flexDirection: 'column',
+        flexDirection: flexDirection || 'column',
         justifyContent: justifyContent,
         marginHorizontal: 0,
         padding: 8,

@@ -1,3 +1,5 @@
+import { UserProfileDTO } from './types';
+
 export enum Colours {
   BLACK = '#000000',
   DANGER = '#FF4D4F',
@@ -41,4 +43,13 @@ export const AbsenceMock = {
   startDate: '03.03.2025',
   endDate: '07.03.2025',
   status: 'checking',
+};
+
+export const UserMock: UserProfileDTO = {
+  name: 'Иван',
+  surname: 'Иванов',
+  patronym: 'Иванович',
+  email: 'ivan.ivanov@mail.com',
+  groupCode: '128765',
+  courseNumber: 2,
 };
