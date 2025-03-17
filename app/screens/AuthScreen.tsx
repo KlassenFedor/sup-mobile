@@ -5,7 +5,7 @@ import { Button, ContentBlock, ScreenDataWrapper, Span, TextInput } from '@sup-c
 import { Colours } from '@constants';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { API_URL } from '../shared/api_requests';
+import { API_URL, requests } from '../shared/api_requests';
 
 
 const AuthScreen: React.FC = () => {
@@ -15,12 +15,12 @@ const AuthScreen: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`${API_URL}/login`, { username: login, password: password });
+      const response = await axios.post(`${API_URL}/${requests.LOGIN}`, { username: login, password: password });
       const accessToken = response.data['token'];
       await AsyncStorage.setItem('accessToken', accessToken);
       setIsAuthenticated(true);
     } catch (error) {
-      Alert.alert('Login Failed', 'Invalid username or password');
+      Alert.alert('Ошибка', 'Некорректное имя пользователя или пароль.');
       console.log(error);
     }
   };

@@ -11,25 +11,28 @@ import {
   ScreenHeader,
 } from '@sup-components';
 import { AbsenceStatusToRussian, Colours } from '../shared/constants';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { Form } from '@ant-design/react-native';
 import { AbsenceMock as absence } from '../shared/constants';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 type RootStackParamList = {
   AbsenceDetails: { absenceId: string };
+  EditAbsence: { absenceId: string };
 };
 type AbsenceDetailsRouteProp = RouteProp<RootStackParamList, 'AbsenceDetails'>;
 
-const AbsenceDetailsScreen: React.FC = ({ navigation }) => {
+const AbsenceDetailsScreen: React.FC = () => {
   const route = useRoute<AbsenceDetailsRouteProp>();
   const { absenceId } = route.params;
-  console.log(route.params)
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  
   const goBack = () => {
     navigation.goBack();
   };
 
   const openEditScreen = () => {
-    navigation.navigate('EditAbsence', { absenceId });
+    navigation.navigate('EditAbsence', { absenceId: absenceId });
   };
 
   return (

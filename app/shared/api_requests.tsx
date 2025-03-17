@@ -6,7 +6,7 @@ export enum requests {
     LOGIN = 'login',
     LOGOUT = 'logout',
     PROFILE = 'profile',
-    MY_ABSENCES = 'my_absences',
+    MY_ABSENCES = 'skips',
     GET_ABSENCE = 'get_absence',
     CREATE_ABSENCE = 'create_absence',
     UPDATE_ABSENCE = 'update_absence',

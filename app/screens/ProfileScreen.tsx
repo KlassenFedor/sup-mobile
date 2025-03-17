@@ -27,7 +27,7 @@ const ProfileScreen: React.FC = () => {
 
         setUser(response.data);
       } catch (error) {
-        Alert.alert('Error', 'Failed to fetch profile');
+        Alert.alert('Ошибка', 'Не удалось загрузить профиль');
         console.log(error);
       } finally {
         setLoading(false);

@@ -1,27 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FlatList, ActivityIndicator, Alert, RefreshControl, TouchableOpacity } from 'react-native';
 import { ScreenDataWrapper, ScreenHeader, CardItem, Button, Icon } from '@sup-components';
 import { AbsenceDTO } from '../shared/types';
 import { Colours } from '../shared/constants';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
-import { API_URL } from '../shared/api_requests';
+import { API_URL, requests } from '../shared/api_requests';
+import { getAccessToken } from '../shared/helpers';
 
 type RootStackParamList = {
   CreateAbsence: undefined;
   AbsenceDetails: { absenceId: string };
-};
-
-const getAccessToken = async () => {
-  try {
-    const token = await AsyncStorage.getItem('accessToken');
-    return token ?? null;
-  } catch (error) {
-    console.error('Error retrieving access token:', error);
-    return null;
-  }
 };
 
 const MyAbsencesScreen: React.FC = () => {
@@ -34,14 +24,14 @@ const MyAbsencesScreen: React.FC = () => {
     try {
       setLoading(true);
       const token = await getAccessToken();
-      const response = await axios.get(`${API_URL}/cards`, {
+      const response = await axios.get(`${API_URL}/${requests.MY_ABSENCES}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       setData(response.data);
     } catch (error) {
-      Alert.alert('Error', 'Failed to load absences data.');
+      Alert.alert('Ошибка', 'Не удалось загрузить данные.');
     } finally {
       setLoading(false);
     }

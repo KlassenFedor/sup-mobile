@@ -74,8 +74,7 @@ fake_users_db = {
 
 # Token model
 class Token(BaseModel):
-    access_token: str
-    refresh_token: str
+    token: str
     token_type: str
 
 
@@ -127,10 +126,10 @@ def login(request: LoginRequest):
     if not user or user["password"] != request.password:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    access_token = create_token({"sub": request.username}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    refresh_token = create_token({"sub": request.username}, timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
+    access_token = create_token({"sub": request.username}, timedelta(days=ACCESS_TOKEN_EXPIRE_MINUTES))
+    # refresh_token = create_token({"sub": request.username}, timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
 
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    return {"token": access_token, "token_type": "bearer"}
 
 
 # Token refresh endpoint
@@ -150,7 +149,7 @@ def refresh_token(token: RefreshTokenRequest):
 
 
 # Get user cards endpoint
-@app.get("/cards", response_model=list[CardItem])
+@app.get("/skips", response_model=list[CardItem])
 def get_user_cards(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

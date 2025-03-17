@@ -76,20 +76,3 @@ export default function App() {
     </Provider>
   );
 }
-
-// // Styles for Custom Navigation Bar
-// const styles = StyleSheet.create({
-//   navBarWrapper: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-around',
-//     alignItems: 'center',
-//     backgroundColor: '#ffffff',
-//     height: 60,
-//     borderTopWidth: 1,
-//     borderTopColor: '#dddddd',
-//   },
-//   tabButton: {
-//     padding: 10,
-//     alignItems: 'center',
-//   },
-// });
