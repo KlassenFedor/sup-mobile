@@ -1,7 +1,7 @@
 import React from 'react';
 import { Flex, Text, WhiteSpace } from '@ant-design/react-native';
 import { ContentBlock, Button } from '@sup-components';
-import { commonStyles } from '@common/styles';
+import commonStyles from '../../../styles';
 import { styles } from './styles';
 
 type ScreenHeaderProps = {

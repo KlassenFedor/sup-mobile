@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView, View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { ScreenDataWrapper, ScreenHeader } from '@sup-components';
-import Icon from 'react-native-vector-icons/Feather';
+import { ContentBlock, DateTimePicker, FormItem, ScreenDataWrapper, ScreenHeader, Button, Icon } from '@sup-components';
 import { Colours } from '../shared/constants';
 import { NavigationType } from '../context/NavigationContext';
+import { Form, Text } from '@ant-design/react-native';
+import moment from 'moment';
 
 const CreateAbsenceScreen: React.FC<{
   navigation: NavigationType;
 }> = ({ navigation }) => {
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [form] = Form.useForm();
+  const [startDateVisible, setStartDateVisible] = useState(false);
+  const startDate = Form.useWatch('startDate', form);
+
+  const [endDateVisible, setEndDateVisible] = useState(false);
+  const endDate = Form.useWatch('endDate', form);
   const [attachedFiles, setAttachedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
+
+  console.log('create formValues', form.getFieldsValue());
 
   // Handle file attachment
   const handleAttachFile = async () => {
@@ -44,69 +48,74 @@ const CreateAbsenceScreen: React.FC<{
     <>
       <ScreenHeader
         headerTitle="Создать пропуск"
-        backButtonTitle={<Icon name="arrow-left" size={24} color={Colours.SECONDARY} />}
+        backButtonTitle={<Icon iconLib="Feather" name="arrow-left" size={24} color={Colours.SECONDARY} />}
         onBackPress={goBack}
         actionButtonTitle="сохранить"
-        onActionButtonPress={() => {}}
+        onActionButtonPress={handleSubmit}
       ></ScreenHeader>
       <ScreenDataWrapper style={{ paddingBottom: 0 }}>
-        <ScrollView contentContainerStyle={styles.container}>
-          {/* Start Date Input */}
-          <Text style={styles.label}>Начало</Text>
-          <Button
-            title={`Select Start Date: ${startDate.toISOString().split('T')[0]}`}
-            onPress={() => setShowStartDatePicker(true)}
-          />
-          {showStartDatePicker && (
-            <DateTimePicker
-              value={startDate}
-              mode="date"
-              display="default"
-              onChange={(event, selectedDate) => {
-                setShowStartDatePicker(false);
-                if (selectedDate) {
-                  setStartDate(selectedDate);
-                }
-              }}
-            />
-          )}
+        <ContentBlock style={{ backgroundColor: Colours.WHITE, borderRadius: 12 }}>
+          <ScrollView showsVerticalScrollIndicator={false} style={{ borderTopColor: 'transparent', borderTopWidth: 0 }}>
+            <Form
+              name="create-new-absence-form"
+              form={form}
+              layout="vertical"
+              preserve={false}
+              style={{ backgroundColor: Colours.WHITE }}
+              styles={{ BodyBottomLine: { height: 0 }, Body: { borderTopColor: 'transparent', borderTopWidth: 0 } }}
+            >
+              <FormItem label="Дата с:" name={'startDate'} initialValue={undefined} rules={[{ required: true }]}>
+                <DateTimePicker
+                  format={'DD.MM.YYYY HH:mm'}
+                  formItemName="startDate"
+                  iconColor="PLACEHOLDER"
+                  initialValue={moment().startOf('day').format('DD.MM.YYYY HH:mm').toString()}
+                  minDate={moment().startOf('day').format('DD.MM.YYYY HH:mm').toString()}
+                  maxDate={endDate ? moment(endDate).format('DD.MM.YYYY HH:mm').toString() : undefined}
+                  precision={'minute'}
+                  visible={startDateVisible}
+                  setVisible={setStartDateVisible}
+                />
+              </FormItem>
+              <FormItem label="Дата по:" name={'endDate'} initialValue={undefined} rules={[{ required: true }]}>
+                <DateTimePicker
+                  format={'DD.MM.YYYY HH:mm'}
+                  formItemName="endDate"
+                  iconColor="PLACEHOLDER"
+                  initialValue={endDate || undefined}
+                  minDate={
+                    startDate
+                      ? moment(startDate).format('DD.MM.YYYY HH:mm').toString()
+                      : moment().endOf('day').format('DD.MM.YYYY HH:mm').toString()
+                  }
+                  precision={'minute'}
+                  visible={endDateVisible}
+                  setVisible={setEndDateVisible}
+                />
+              </FormItem>
 
-          {/* End Date Input */}
-          <Text style={styles.label}>Окончание</Text>
-          <Button title={`Select End Date: ${endDate.toISOString().split('T')[0]}`} onPress={() => setShowEndDatePicker(true)} />
-          {showEndDatePicker && (
-            <DateTimePicker
-              value={endDate}
-              mode="date"
-              display="default"
-              onChange={(event, selectedDate) => {
-                setShowEndDatePicker(false);
-                if (selectedDate) {
-                  setEndDate(selectedDate);
-                }
-              }}
-            />
-          )}
-
-          {/* File Attachment Field */}
-          <Text style={styles.label}>Прикрепить файлы</Text>
-          <Button title="Прикрепить файлы" onPress={handleAttachFile} />
-          {attachedFiles.length > 0 && (
-            <View style={styles.fileList}>
-              <Text style={styles.fileListTitle}>Прикрепленные файлы:</Text>
-              {attachedFiles.map((file, index) => (
-                <Text key={index} style={styles.fileName}>
-                  {file.name}
-                </Text>
-              ))}
-            </View>
-          )}
-
-          {/* Submit Button */}
-          <View style={styles.submitButton}>
-            <Button title="Отправить" onPress={handleSubmit} />
-          </View>
-        </ScrollView>
+              <ContentBlock alignItems="center" style={{ padding: 0 }}>
+                <Button onPress={handleAttachFile} wrap type="ghost" style={{ borderWidth: 2, marginBottom: 4, marginTop: 16 }}>
+                  <Icon iconLib="Feather" name="upload" color={Colours.PRIMARY} />
+                  <Text style={{ color: Colours.PRIMARY, marginLeft: 4 }}>Прикрепить документы</Text>
+                </Button>
+              </ContentBlock>
+              {attachedFiles.length > 0 && (
+                <View style={styles.fileList}>
+                  <Text style={styles.fileListTitle}>Прикрепленные файлы:</Text>
+                  {attachedFiles.map((file, index) => (
+                    <Text key={index} style={styles.fileName}>
+                      {file.name}
+                    </Text>
+                  ))}
+                </View>
+              )}
+            </Form>
+            <Button onPress={handleSubmit} type="primary" style={{ marginTop: 24, marginBottom: 8 }}>
+              Отправить
+            </Button>
+          </ScrollView>
+        </ContentBlock>
       </ScreenDataWrapper>
     </>
   );
@@ -114,17 +123,6 @@ const CreateAbsenceScreen: React.FC<{
 
 // Styles
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 16,
-    backgroundColor: '#f5f5f5',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 8,
-  },
   fileList: {
     marginTop: 16,
   },
@@ -136,11 +134,6 @@ const styles = StyleSheet.create({
   fileName: {
     fontSize: 14,
     color: '#666',
-  },
-  submitButton: {
-    marginTop: 24,
-    marginRight: 100,
-    marginLeft: 100,
   },
 });
 

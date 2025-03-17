@@ -2,9 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FlatList, ActivityIndicator, Alert, RefreshControl, TouchableOpacity } from 'react-native';
-import { ScreenDataWrapper, ScreenHeader, CardItem, Button } from '@sup-components';
+import { ScreenDataWrapper, ScreenHeader, CardItem, Button, Icon } from '@sup-components';
 import { AbsenceDTO } from '../shared/types';
-import Icon from 'react-native-vector-icons/Feather';
 import { Colours } from '../shared/constants';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
@@ -152,7 +151,7 @@ const MyAbsencesScreen: React.FC = () => {
           }}
           onPress={onAddAbsenceBtnPress}
         >
-          <Icon name="plus" size={24} color={Colours.WHITE} />
+          <Icon iconLib="Feather" name="plus" size={24} color={Colours.WHITE} />
         </Button>
       </ScreenDataWrapper>
     </>

@@ -2,10 +2,9 @@ import React, { useMemo } from 'react';
 import { TouchableHighlight } from 'react-native';
 import { View } from '@ant-design/react-native';
 import { Colours } from '@constants';
-import { default as FIcon } from 'react-native-vector-icons/Feather';
-import { default as OctIcon } from 'react-native-vector-icons/Octicons';
 import { styles } from './styles';
 import { RootStackParamListKeys } from '@/app/context/NavigationContext';
+import { Icon } from '@sup-components';
 
 type NavItemProps = {
   isActive: boolean;
@@ -32,10 +31,7 @@ const NavItem: React.FC<NavItemProps> = ({ isActive, iconLib = 'Feather', iconNa
     <TouchableHighlight activeOpacity={1} underlayColor={'transparent'} onPress={() => setIsActive(navItemKey)}>
       <View style={fcStyles.container}>
         <View style={fcStyles.iconArea}>
-          <View style={fcStyles.iconWrapper}>
-            {iconLib === 'Feather' && <FIcon {...iconProps} />}
-            {iconLib === 'Octicons' && <OctIcon {...iconProps} />}
-          </View>
+          <View style={fcStyles.iconWrapper}>{<Icon iconLib={iconLib} {...iconProps} />}</View>
         </View>
       </View>
     </TouchableHighlight>

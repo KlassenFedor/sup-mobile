@@ -9,9 +9,10 @@ type SupButtonProps = ButtonProps & {
   styleType?: 'primary' | 'warning' | 'ghost' | 'blank';
   style?: StylesType;
   wrap?: boolean;
+  wrappedRowStyle?: StylesType;
 };
 
-const Button: React.FC<SupButtonProps> = ({ children, styleType, style, wrap = false, ...props }) => {
+const Button: React.FC<SupButtonProps> = ({ children, styleType, wrappedRowStyle, style, wrap = false, ...props }) => {
   const [isPressed, setIsPressed] = useState(false);
 
   const commonBtnStyles = styles.all.common;
@@ -31,7 +32,7 @@ const Button: React.FC<SupButtonProps> = ({ children, styleType, style, wrap = f
   );
 
   return wrap ? (
-    <View style={styles.all.wrapper}>
+    <View style={[wrappedRowStyle, styles.all.wrapper]}>
       <ButtonToRender />
     </View>
   ) : (

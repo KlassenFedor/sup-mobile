@@ -1,39 +1,24 @@
 import React from 'react';
-import { Text, ScrollView } from 'react-native';
+import { Text, ScrollView, View } from 'react-native';
 import {
   Button,
   ContentBlock,
   FormBlockView,
   FormBlockViewField,
   FormFieldsBlockTitle,
+  Icon,
   ScreenDataWrapper,
   ScreenHeader,
 } from '@sup-components';
-import Icon from 'react-native-vector-icons/Feather';
 import { AbsenceStatusToRussian, Colours } from '../shared/constants';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { Form } from '@ant-design/react-native';
+import { AbsenceMock as absence } from '../shared/constants';
 
 type RootStackParamList = {
   AbsenceDetails: { absenceId: string };
 };
 type AbsenceDetailsRouteProp = RouteProp<RootStackParamList, 'AbsenceDetails'>;
-
-const absence = {
-  id: '2021',
-  student: {
-    name: 'Иван',
-    surname: 'Иванов',
-    patronymic: 'Иванович',
-    group: '111111',
-    course: '2',
-  },
-  files: ['file1.pdf', 'file2.pdf'],
-  name: 'Пропуск № 2021',
-  startDate: '03.03.2025',
-  endDate: '07.03.2025',
-  status: 'checking',
-};
 
 const AbsenceDetailsScreen: React.FC = ({ navigation }) => {
   const route = useRoute<AbsenceDetailsRouteProp>();
@@ -56,7 +41,7 @@ const AbsenceDetailsScreen: React.FC = ({ navigation }) => {
             {`№${absenceId}`}
           </Text>
         }
-        backButtonTitle={<Icon name="arrow-left" size={24} color={Colours.SECONDARY} />}
+        backButtonTitle={<Icon iconLib="Feather" name="arrow-left" size={24} color={Colours.SECONDARY} />}
         onBackPress={goBack}
         actionButtonTitle="редактировать"
         onActionButtonPress={openEditScreen}
@@ -69,31 +54,35 @@ const AbsenceDetailsScreen: React.FC = ({ navigation }) => {
               style={{ backgroundColor: Colours.WHITE }}
               styles={{ BodyBottomLine: { height: 0 }, Body: { borderTopColor: 'transparent', borderTopWidth: 0 } }}
             >
-              <FormFieldsBlockTitle title="Полная информация" style={{ marginTop: 8 }} />
-              <FormBlockView>
-                <FormBlockViewField
-                  title="ФИО студента:"
-                  value={`${absence.student.surname} ${absence.student.name} ${absence.student.patronymic}`}
-                />
-              </FormBlockView>
-              <FormBlockView>
-                <FormBlockViewField
-                  title="Статус:"
-                  value={`${AbsenceStatusToRussian[absence.status as 'checking' | 'approved' | 'rejected']}`}
-                />
-              </FormBlockView>
-              <FormBlockView>
-                <FormBlockViewField title="Период:" />
-                <FormBlockViewField iconName="calendar" title="с:" value={absence.startDate} />
-                <FormBlockViewField iconName="calendar" title="по:" value={absence.endDate} />
-              </FormBlockView>
+              <View>
+                <FormFieldsBlockTitle title="Полная информация" style={{ marginTop: 8 }} />
+                <FormBlockView>
+                  <FormBlockViewField
+                    title="ФИО студента:"
+                    value={`${absence.student.surname} ${absence.student.name} ${absence.student.patronymic}`}
+                  />
+                </FormBlockView>
+                <FormBlockView>
+                  <FormBlockViewField title="Период:" />
+                  <FormBlockViewField iconName="calendar" title="с:" value={absence.startDate} />
+                  <FormBlockViewField iconName="calendar" title="по:" value={absence.endDate} />
+                </FormBlockView>
+                <FormBlockView>
+                  <FormBlockViewField
+                    title="Статус:"
+                    value={`${AbsenceStatusToRussian[absence.status as 'checking' | 'approved' | 'rejected']}`}
+                  />
+                </FormBlockView>
+              </View>
 
-              <FormFieldsBlockTitle title="Вложения" style={{ marginTop: 24 }} />
-              <FormBlockView>
-                <FormBlockViewField title="Документы:" value={absence.files ? 'есть' : 'нет'} />
-                {absence.files &&
-                  absence.files.map((file, index) => <FormBlockViewField key={index} title={file} iconName="filetext1" />)}
-              </FormBlockView>
+              <View>
+                <FormFieldsBlockTitle title="Вложения" style={{ marginTop: 24 }} />
+                <FormBlockView>
+                  <FormBlockViewField title="Документы:" value={absence.files ? 'есть' : 'нет'} />
+                  {absence.files &&
+                    absence.files.map((file, index) => <FormBlockViewField key={index} title={file} iconName="filetext1" />)}
+                </FormBlockView>
+              </View>
 
               <Button
                 wrap

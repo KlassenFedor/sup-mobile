@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-export const commonStyles = StyleSheet.create({
+export const otherStyles = StyleSheet.create({
   alignItemsStart: {
     alignItems: 'flex-start',
   },
@@ -17,3 +17,8 @@ export const commonStyles = StyleSheet.create({
     fontSize: 18,
   },
 });
+
+const commonStyles = {
+  ...otherStyles,
+};
+export default commonStyles;
