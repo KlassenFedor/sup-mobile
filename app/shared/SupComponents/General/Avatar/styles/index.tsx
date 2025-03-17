@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colours.WHITE,
     borderColor: 'transparent',
-    borderRadius: '50%',
+    borderRadius: 32,
     borderWidth: 0,
     display: 'flex',
     fontSize: 32,
@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
     width: 64,
   },
   imageStyle: {
-    borderRadius: '50%',
+    borderRadius: 28,
     height: 56,
     width: 56,
   },

@@ -76,7 +76,7 @@ const MyAbsencesScreen: React.FC = () => {
             right: 18,
             width: 56,
             height: 56,
-            borderRadius: 28, // Corrected
+            borderRadius: 28,
             backgroundColor: Colours.PRIMARY,
             elevation: 4, // Android shadow
             shadowColor: '#000', // iOS shadow

@@ -16,8 +16,11 @@ import {
 } from '@sup-components';
 import { NavigationType } from '../context/NavigationContext';
 import { AbsenceStatusToRussian, Colours } from '../shared/constants';
-import { convertStrToDate } from '../shared/helpers';
+import { convertStrToDate, getAccessToken } from '../shared/helpers';
 import { AbsenceMock as absenceToEdit } from '../shared/constants';
+import moment from 'moment';
+import { API_URL, requests } from '../shared/api_requests';
+import axios from 'axios';
 
 const EditAbsenceScreen: React.FC<{
   navigation: NavigationType;
@@ -25,6 +28,8 @@ const EditAbsenceScreen: React.FC<{
   const [form] = Form.useForm();
   const [dateVisible, setDateVisible] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
+  const startDate = Form.useWatch('startDate', form);
+  const endDate = Form.useWatch('endDate', form);
 
   const goBack = () => {
     navigation.goBack();
@@ -38,6 +43,61 @@ const EditAbsenceScreen: React.FC<{
 
     if (result.assets) {
       setAttachedFiles([...attachedFiles]);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const token = await getAccessToken();
+  
+      if (!token) {
+        alert('Ошибка: Токен не найден. Авторизуйтесь заново.');
+        return;
+      }
+  
+      if (!startDate || !endDate) {
+        alert('Пожалуйста, выберите даты.');
+        return;
+      }
+  
+      const absenceData = {
+        startDate: moment(startDate).format('YYYY-MM-DD HH:mm'),
+        endDate: moment(endDate).format('YYYY-MM-DD HH:mm'),
+        attachedFiles: attachedFiles.map((file) => ({
+          uri: file.uri,
+          name: file.name,
+          type: file.mimeType || 'application/octet-stream',
+        })),
+      };
+  
+      console.log('Sending data:', absenceData);
+  
+      const formData = new FormData();
+      formData.append('startDate', absenceData.startDate);
+      formData.append('endDate', absenceData.endDate);
+  
+      attachedFiles.forEach((file, index) => {
+        formData.append(`file_${index}`, {
+          uri: file.uri,
+          name: file.name,
+          type: file.mimeType || 'application/octet-stream',
+        } as any);
+      });
+  
+      const response = await axios.post(`${API_URL}/${requests.UPDATE_ABSENCE}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      console.log('Response:', response.data);
+      alert('Данные успешно отправлены!');
+  
+      navigation.goBack();
+    } catch (error) {
+      console.error('Ошибка отправки:', error);
+      alert('Ошибка при отправке данных.');
     }
   };
 

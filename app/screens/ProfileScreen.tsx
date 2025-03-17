@@ -17,11 +17,12 @@ import {
   FormBlockViewField,
   Button,
 } from '@sup-components';
-import { API_URL } from '../shared/api_requests';
+import { API_URL, requests } from '../shared/api_requests';
+import { getAccessToken } from '../shared/helpers';
 
 type RootStackParamList = {
-  Auth: undefined; // Auth screen
-  Tabs: undefined; // Bottom tab navigation
+  Auth: undefined;
+  Tabs: undefined;
 };
 
 type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
@@ -36,8 +37,8 @@ const ProfileScreen: React.FC = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const accessToken = await AsyncStorage.getItem('accessToken');
-        const response = await axios.get<UserProfileDTO>(`${API_URL}/profile`, {
+        const accessToken = await getAccessToken();
+        const response = await axios.get<UserProfileDTO>(`${API_URL}/${requests.PROFILE}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
@@ -50,7 +51,7 @@ const ProfileScreen: React.FC = () => {
       }
     };
 
-    // fetchUserProfile();
+    fetchUserProfile();
   }, []);
 
   return (

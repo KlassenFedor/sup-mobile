@@ -6,6 +6,9 @@ import { Colours } from '../shared/constants';
 import { NavigationType } from '../context/NavigationContext';
 import { Form, Text } from '@ant-design/react-native';
 import moment from 'moment';
+import axios from 'axios';
+import { API_URL, requests } from '../shared/api_requests';
+import { getAccessToken } from '../shared/helpers';
 
 const CreateAbsenceScreen: React.FC<{
   navigation: NavigationType;
@@ -31,11 +34,59 @@ const CreateAbsenceScreen: React.FC<{
     }
   };
 
-  const handleSubmit = () => {
-    console.log('Start Date:', startDate.toISOString().split('T')[0]);
-    console.log('End Date:', endDate.toISOString().split('T')[0]);
-    console.log('Attached Files:', attachedFiles);
-    alert('Данные успешно отправлены!');
+  const handleSubmit = async () => {
+    try {
+      const token = await getAccessToken();
+  
+      if (!token) {
+        alert('Ошибка: Токен не найден. Авторизуйтесь заново.');
+        return;
+      }
+  
+      if (!startDate || !endDate) {
+        alert('Пожалуйста, выберите даты.');
+        return;
+      }
+  
+      const absenceData = {
+        startDate: moment(startDate).format('YYYY-MM-DD HH:mm'),
+        endDate: moment(endDate).format('YYYY-MM-DD HH:mm'),
+        attachedFiles: attachedFiles.map((file) => ({
+          uri: file.uri,
+          name: file.name,
+          type: file.mimeType || 'application/octet-stream',
+        })),
+      };
+  
+      console.log('Sending data:', absenceData);
+  
+      const formData = new FormData();
+      formData.append('startDate', absenceData.startDate);
+      formData.append('endDate', absenceData.endDate);
+  
+      attachedFiles.forEach((file, index) => {
+        formData.append(`file_${index}`, {
+          uri: file.uri,
+          name: file.name,
+          type: file.mimeType || 'application/octet-stream',
+        } as any);
+      });
+  
+      const response = await axios.post(`${API_URL}/${requests.CREATE_ABSENCE}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      console.log('Response:', response.data);
+      alert('Данные успешно отправлены!');
+  
+      navigation.goBack();
+    } catch (error) {
+      console.error('Ошибка отправки:', error);
+      alert('Ошибка при отправке данных.');
+    }
   };
 
   const goBack = () => {
