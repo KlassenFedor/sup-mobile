@@ -23,8 +23,8 @@ const Button: React.FC<SupButtonProps> = ({ children, styleType, wrappedRowStyle
     <AntButton
       style={[commonBtnStyles, typeBasedStyles.common, isPressed && typeBasedStyles.onPressed, stylesToAdd]}
       activeStyle={typeBasedStyles.onPressed}
-      onPressIn={() => setIsPressed(true)}
-      onPressOut={() => setIsPressed(false)}
+      // onPressIn={() => setIsPressed(true)}
+      // onPressOut={() => setIsPressed(false)}
       {...props}
     >
       <Text style={typeBasedStyles.cardText}>{children}</Text>

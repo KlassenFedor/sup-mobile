@@ -5,7 +5,7 @@ import { Button, ContentBlock, ScreenDataWrapper, Span, TextInput } from '@sup-c
 import { Colours } from '@constants';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { API_URL } from '@constants';
+import { API_URL } from '../shared/api_requests';
 
 
 const AuthScreen: React.FC = () => {
@@ -16,13 +16,8 @@ const AuthScreen: React.FC = () => {
   const handleLogin = async () => {
     try {
       const response = await axios.post(`${API_URL}/login`, { username: login, password: password });
-      const accessToken = response.data['access_token'];
-      const refreshToken = response.data['refresh_token'];
-
-      // Store tokens
+      const accessToken = response.data['token'];
       await AsyncStorage.setItem('accessToken', accessToken);
-      await AsyncStorage.setItem('refreshToken', refreshToken);
-
       setIsAuthenticated(true);
     } catch (error) {
       Alert.alert('Login Failed', 'Invalid username or password');
@@ -57,26 +52,6 @@ const AuthScreen: React.FC = () => {
       </ContentBlock>
     </ScreenDataWrapper>
   );
-};
-
-export const refreshAccessToken = async (): Promise<string | null> => {
-  try {
-    const refreshToken = await AsyncStorage.getItem('refreshToken');
-    if (!refreshToken) throw new Error('No refresh token available');
-
-    const response = await axios.post(`${API_URL}/refresh`, { token: refreshToken });
-    const accessToken = response.data['access_token'];
-    const newRefreshToken = response.data['refresh_token'];
-
-    // Update tokens in storage
-    await AsyncStorage.setItem('accessToken', accessToken);
-    await AsyncStorage.setItem('refreshToken', newRefreshToken);
-
-    return accessToken;
-  } catch (error) {
-    Alert.alert('Session Expired', 'Please log in again');
-    return null;
-  }
 };
 
 const styles = StyleSheet.create({

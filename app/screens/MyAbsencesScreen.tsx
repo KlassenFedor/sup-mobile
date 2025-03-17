@@ -7,96 +7,39 @@ import { AbsenceDTO } from '../shared/types';
 import { Colours } from '../shared/constants';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
-import { API_URL } from '../shared/constants';
-
-const cardData: AbsenceDTO[] = [
-  {
-    id: '2021',
-    files: ['file1.pdf', 'file2.pdf'],
-    name: 'Пропуск № 2021',
-    startDate: '03.03.2025',
-    endDate: '07.03.2025',
-    status: 'checking',
-  },
-  {
-    id: '956',
-    files: [],
-    name: 'Пропуск № 956',
-    startDate: '01.02.2025',
-    endDate: '01.02.2025',
-    status: 'rejected',
-  },
-  {
-    id: '989',
-    files: ['file1.pdf', 'file2.pdf'],
-    name: 'Пропуск № 989',
-    startDate: '07.02.2025',
-    endDate: '09.02.2025',
-    status: 'approved',
-  },
-  {
-    id: '1000',
-    files: [],
-    name: 'Пропуск № 1000',
-    startDate: '28.02.2025',
-    endDate: '28.02.2025',
-    status: 'checking',
-  },
-  {
-    id: '1010',
-    files: [],
-    name: 'Пропуск № 1010',
-    startDate: '05.03.2025',
-    endDate: '06.03.2025',
-    status: 'rejected',
-  },
-  {
-    id: '1810',
-    files: ['file1.pdf', 'file2.pdf'],
-    name: 'Пропуск № 1810',
-    startDate: '13.03.2025',
-    endDate: '20.03.2025',
-    status: 'checking',
-  },
-];
+import { API_URL } from '../shared/api_requests';
 
 type RootStackParamList = {
   CreateAbsence: undefined;
   AbsenceDetails: { absenceId: string };
 };
-type MyAbsencesScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CreateAbsence', 'AbsenceDetails'>;
 
 const getAccessToken = async () => {
   try {
-    const token = await AsyncStorage.getItem('accessToken'); // Retrieve token
-    if (token !== null) {
-      return token;
-    }
-    return null;
+    const token = await AsyncStorage.getItem('accessToken');
+    return token ?? null;
   } catch (error) {
     console.error('Error retrieving access token:', error);
     return null;
   }
 };
 
-// Main screen component
 const MyAbsencesScreen: React.FC = () => {
-  const [data, setData] = useState<AbsenceDTO[]>(cardData);
+  const [data, setData] = useState<AbsenceDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const navigation = useNavigation<MyAbsencesScreenNavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-  // Fetch data from API
   const fetchData = async () => {
     try {
       setLoading(true);
       const token = await getAccessToken();
       const response = await axios.get(`${API_URL}/cards`, {
         headers: {
-          Authorization: `Bearer ${token}`, // Attach the token in Authorization header
+          Authorization: `Bearer ${token}`,
         },
       });
-      setData(response.data); // Ensure API returns an array of cards
+      setData(response.data);
     } catch (error) {
       Alert.alert('Error', 'Failed to load absences data.');
     } finally {
@@ -104,7 +47,6 @@ const MyAbsencesScreen: React.FC = () => {
     }
   };
 
-  // Refresh function for pull-to-refresh
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchData();
@@ -112,19 +54,15 @@ const MyAbsencesScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // fetchData();
+    fetchData();
   }, []);
-
-  const onAddAbsenceBtnPress = () => {
-    navigation.navigate('CreateAbsence');
-  };
 
   return (
     <>
-      <ScreenHeader headerTitle="Мои пропуски"></ScreenHeader>
+      <ScreenHeader headerTitle="Мои пропуски" />
       <ScreenDataWrapper style={{ paddingBottom: 0 }}>
         {loading ? (
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color={Colours.PRIMARY} />
         ) : (
           <FlatList
             data={data}
@@ -138,6 +76,8 @@ const MyAbsencesScreen: React.FC = () => {
             showsVerticalScrollIndicator={false}
           />
         )}
+
+        {/* Floating Action Button */}
         <Button
           type="primary"
           style={{
@@ -146,10 +86,17 @@ const MyAbsencesScreen: React.FC = () => {
             right: 18,
             width: 56,
             height: 56,
-            borderRadius: '50%',
-            boxShadow: '0px 6px 4px 0px rgba(0, 0, 0, 0.2)',
+            borderRadius: 28, // Corrected
+            backgroundColor: Colours.PRIMARY,
+            elevation: 4, // Android shadow
+            shadowColor: '#000', // iOS shadow
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 3,
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
-          onPress={onAddAbsenceBtnPress}
+          onPress={() => navigation.navigate('CreateAbsence')}
         >
           <Icon iconLib="Feather" name="plus" size={24} color={Colours.WHITE} />
         </Button>

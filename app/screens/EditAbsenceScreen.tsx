@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Form, View, Text } from '@ant-design/react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
 import * as DocumentPicker from 'expo-document-picker';
 import {
   Button,
@@ -15,30 +14,26 @@ import {
   ScreenDataWrapper,
   ScreenHeader,
 } from '@sup-components';
+import { NavigationType } from '../context/NavigationContext';
 import { AbsenceStatusToRussian, Colours } from '../shared/constants';
 import { convertStrToDate } from '../shared/helpers';
 import { AbsenceMock as absenceToEdit } from '../shared/constants';
 
-type RootStackParamList = {
-  EditAbsence: { absenceId: string };
-};
-type EditAbsenceRouteProp = RouteProp<RootStackParamList, 'EditAbsence'>;
-
-const EditAbsenceScreen: React.FC = ({ navigation }) => {
-  const route = useRoute<EditAbsenceRouteProp>();
+const EditAbsenceScreen: React.FC<{
+  navigation: NavigationType;
+}> = ({ navigation }) => {
   const [form] = Form.useForm();
   const [dateVisible, setDateVisible] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
 
-  const { absenceId } = route.params;
   const goBack = () => {
     navigation.goBack();
   };
 
   const handleAttachFile = async () => {
     const result = await DocumentPicker.getDocumentAsync({
-      type: '*/*', // Allow all file types
-      copyToCacheDirectory: true, // Cache the file for easier access
+      type: '*/*',
+      copyToCacheDirectory: true,
     });
 
     if (result.assets) {

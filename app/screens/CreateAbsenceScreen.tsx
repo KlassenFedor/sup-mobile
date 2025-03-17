@@ -20,11 +20,10 @@ const CreateAbsenceScreen: React.FC<{
 
   console.log('create formValues', form.getFieldsValue());
 
-  // Handle file attachment
   const handleAttachFile = async () => {
     const result = await DocumentPicker.getDocumentAsync({
-      type: '*/*', // Allow all file types
-      copyToCacheDirectory: true, // Cache the file for easier access
+      type: '*/*',
+      copyToCacheDirectory: true,
     });
 
     if (result.assets) {
@@ -32,7 +31,6 @@ const CreateAbsenceScreen: React.FC<{
     }
   };
 
-  // Handle form submission
   const handleSubmit = () => {
     console.log('Start Date:', startDate.toISOString().split('T')[0]);
     console.log('End Date:', endDate.toISOString().split('T')[0]);
@@ -121,7 +119,6 @@ const CreateAbsenceScreen: React.FC<{
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   fileList: {
     marginTop: 16,
