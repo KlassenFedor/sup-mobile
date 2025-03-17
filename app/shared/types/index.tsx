@@ -18,3 +18,12 @@ export interface AbsenceDTO {
   endDate: string;
   status: AbsenceStatus;
 }
+
+export interface UserProfileDTO {
+  name: string;
+  surname: string;
+  patronym?: string;
+  email: string;
+  groupCode: string;
+  courseNumber: string | number;
+}
