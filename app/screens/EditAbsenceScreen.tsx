@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Alert, ScrollView } from 'react-native';
 import { Form, View, Text } from '@ant-design/react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import {
@@ -17,19 +17,56 @@ import {
 import { NavigationType } from '../context/NavigationContext';
 import { AbsenceStatusToRussian, Colours } from '../shared/constants';
 import { convertStrToDate, getAccessToken } from '../shared/helpers';
-import { AbsenceMock as absenceToEdit } from '../shared/constants';
 import moment from 'moment';
-import { API_URL, requests } from '../shared/api_requests';
+import { API_URL, formatString, requests } from '../shared/api_requests';
 import axios from 'axios';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { AbsenceDTO, AbsenceWithUserDTO, UserProfileDTO } from '../shared/types';
 
-const EditAbsenceScreen: React.FC<{
-  navigation: NavigationType;
-}> = ({ navigation }) => {
+type RootStackParamList = {
+  EditAbsence: { absenceId: string };
+};
+type EditAbsenceRouteProp = RouteProp<RootStackParamList, 'EditAbsence'>;
+
+const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigation }) => {
   const [form] = Form.useForm();
   const [dateVisible, setDateVisible] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
+  const [absenceToEdit, setAbsenceToEdit] = useState<AbsenceWithUserDTO | null>(null);
   const startDate = Form.useWatch('startDate', form);
   const endDate = Form.useWatch('endDate', form);
+  const route = useRoute<EditAbsenceRouteProp>();
+  const { absenceId } = route.params;
+
+  useEffect(() => {
+    const fetchAbsenceData = async () => {
+      try {
+        const accessToken = await getAccessToken();
+        const response = await axios.get<AbsenceDTO>(
+          `${API_URL}/${formatString(requests.GET_ABSENCE, { id: absenceId })}`,
+          { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
+        const studentResponse = await axios.get<UserProfileDTO>(`${API_URL}/${requests.PROFILE}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        setAbsenceToEdit({
+          id: response.data.id,
+          files: response.data.files || [],
+          name: response.data.name,
+          startDate: response.data.startDate,
+          endDate: response.data.endDate,
+          status: response.data.status,
+          student: studentResponse.data,
+        });
+      } catch (error) {
+        Alert.alert('Ошибка', 'Не удалось получить данные пропуска');
+        console.error(error);
+      }
+    };
+
+    fetchAbsenceData();
+  }, [absenceId]);
 
   const goBack = () => {
     navigation.goBack();
@@ -42,58 +79,53 @@ const EditAbsenceScreen: React.FC<{
     });
 
     if (result.assets) {
-      setAttachedFiles([...attachedFiles]);
+      setAttachedFiles((prevFiles) => [...prevFiles, ...result.assets]);
     }
   };
 
   const handleSubmit = async () => {
     try {
+      if (!absenceToEdit) {
+        alert('Ошибка: Данные отсутствуют.');
+        return;
+      }
+
       const token = await getAccessToken();
-  
       if (!token) {
         alert('Ошибка: Токен не найден. Авторизуйтесь заново.');
         return;
       }
-  
+
       if (!startDate || !endDate) {
         alert('Пожалуйста, выберите даты.');
         return;
       }
-  
-      const absenceData = {
-        startDate: moment(startDate).format('YYYY-MM-DD HH:mm'),
-        endDate: moment(endDate).format('YYYY-MM-DD HH:mm'),
-        attachedFiles: attachedFiles.map((file) => ({
-          uri: file.uri,
-          name: file.name,
-          type: file.mimeType || 'application/octet-stream',
-        })),
-      };
-  
-      console.log('Sending data:', absenceData);
-  
+
       const formData = new FormData();
-      formData.append('startDate', absenceData.startDate);
-      formData.append('endDate', absenceData.endDate);
-  
+      formData.append('startDate', moment(startDate).format('YYYY-MM-DD HH:mm'));
+      formData.append('endDate', moment(endDate).format('YYYY-MM-DD HH:mm'));
+
       attachedFiles.forEach((file, index) => {
-        formData.append(`file_${index}`, {
+        formData.append(`files`, {
           uri: file.uri,
           name: file.name,
           type: file.mimeType || 'application/octet-stream',
         } as any);
       });
-  
-      const response = await axios.post(`${API_URL}/${requests.UPDATE_ABSENCE}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-  
+
+      const response = await axios.post(
+        `${API_URL}/${formatString(requests.EXTEND_ABSENCE, { id: absenceToEdit.id })}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
       console.log('Response:', response.data);
       alert('Данные успешно отправлены!');
-  
       navigation.goBack();
     } catch (error) {
       console.error('Ошибка отправки:', error);
@@ -101,7 +133,9 @@ const EditAbsenceScreen: React.FC<{
     }
   };
 
-  console.log('formValues', form.getFieldsValue());
+  if (!absenceToEdit) {
+    return <Text>Загрузка...</Text>;
+  }
 
   return (
     <>
@@ -110,39 +144,23 @@ const EditAbsenceScreen: React.FC<{
         backButtonTitle="отмена"
         onBackPress={goBack}
         actionButtonTitle="сохранить"
-        onActionButtonPress={() => {}}
-      ></ScreenHeader>
+        onActionButtonPress={handleSubmit}
+      />
       <ScreenDataWrapper style={{ paddingBottom: 0 }}>
         <ContentBlock style={{ backgroundColor: Colours.WHITE, borderRadius: 12 }}>
-          <ScrollView showsVerticalScrollIndicator={false} style={{ borderTopColor: 'transparent', borderTopWidth: 0 }}>
-            <Form
-              name="edit-absence-details"
-              form={form}
-              layout="vertical"
-              style={{ backgroundColor: Colours.WHITE }}
-              styles={{ BodyBottomLine: { height: 0 }, Body: { borderTopColor: 'transparent', borderTopWidth: 0 } }}
-              preserve={false}
-            >
-              <FormFieldsBlockTitle title="Полная информация" style={{ marginTop: 8 }} />
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Form name="edit-absence-details" form={form} layout="vertical" preserve={false}>
+              <FormFieldsBlockTitle title="Полная информация" />
               <FormBlockView>
-                <FormBlockViewField
-                  title="ФИО студента:"
-                  value={`${absenceToEdit.student.surname} ${absenceToEdit.student.name} ${absenceToEdit.student.patronymic}`}
-                />
+                <FormBlockViewField title="ФИО студента:" value={absenceToEdit.student.name} />
               </FormBlockView>
-              <FormBlockView style={{ alignItems: 'stretch' }}>
+              <FormBlockView>
                 <FormBlockViewField title="Период:" />
                 <FormBlockViewField iconName="calendar-alt" iconLib="FontAwesome5" title="с:" value={absenceToEdit.startDate} />
-                <FormItem
-                  label="по:"
-                  name={'endDate'}
-                  initialValue={absenceToEdit.endDate ? convertStrToDate(absenceToEdit.endDate) : undefined}
-                  rules={[{ required: true }]}
-                >
+                <FormItem label="по:" name={'endDate'} initialValue={convertStrToDate(absenceToEdit.endDate)} rules={[{ required: true }]}>
                   <DateTimePicker
                     format={'DD.MM.YYYY HH:mm'}
                     formItemName="endDate"
-                    initialValue={absenceToEdit.endDate}
                     minDate={absenceToEdit.endDate}
                     precision={'minute'}
                     visible={dateVisible}
@@ -153,43 +171,13 @@ const EditAbsenceScreen: React.FC<{
               <FormBlockView>
                 <FormBlockViewField
                   title="Статус:"
-                  value={`${AbsenceStatusToRussian[absenceToEdit.status as 'checking' | 'approved' | 'rejected']}`}
+                  value={AbsenceStatusToRussian[absenceToEdit.status as 'checking' | 'approved' | 'rejected']}
                 />
               </FormBlockView>
 
-              <FormFieldsBlockTitle title="Вложения" style={{ marginTop: 24 }} />
-              <FormBlockView style={{ alignItems: 'stretch' }}>
-                <FormBlockViewField title="Документы:" value={(absenceToEdit.files || []).length.toString()} />
-                {absenceToEdit.files &&
-                  absenceToEdit.files.map((file, index) => (
-                    <View
-                      key={index}
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        paddingBlock: 4,
-                        paddingInline: 4,
-                        marginBottom: 4,
-                      }}
-                    >
-                      <View style={{ flexDirection: 'row' }}>
-                        <Icon name="filetext1" color={Colours.PRIMARY} style={{ marginRight: 4 }} />
-                        <Text style={{ color: Colours.BLACK, fontSize: 14 }}>{file}</Text>
-                      </View>
-                      <Button
-                        wrap
-                        type="ghost"
-                        style={{ borderColor: Colours.DANGER, borderWidth: 2, paddingBlock: 4, paddingInline: 8, height: 'auto' }}
-                        onPress={() => {
-                          console.log('file to delete', file);
-                        }}
-                      >
-                        <Icon name="delete" color={Colours.DANGER} />
-                      </Button>
-                    </View>
-                  ))}
-              </FormBlockView>
+              <FormFieldsBlockTitle title="Вложения" />
+              <FormBlockViewField title="Документы:" value={absenceToEdit.files.length.toString()} />
+
               <Button onPress={handleAttachFile} wrap type="ghost" style={{ borderWidth: 2, marginBottom: 12, marginTop: 8 }}>
                 <Icon name="upload" size={20} color={Colours.PRIMARY} />
                 <Text style={{ color: Colours.PRIMARY, marginLeft: 4 }}>Прикрепить документы</Text>

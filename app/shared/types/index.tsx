@@ -27,3 +27,13 @@ export interface UserProfileDTO {
   groupCode: string;
   courseNumber: string | number;
 }
+
+export interface AbsenceWithUserDTO {
+  id: string;
+  files: string[];
+  name: string;
+  startDate: string;
+  endDate: string;
+  status: AbsenceStatus;
+  student: UserProfileDTO;
+}

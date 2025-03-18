@@ -76,16 +76,13 @@ const ProfileScreen: React.FC = () => {
                   <View>
                     <FormFieldsBlockTitle title="Данные пользователя" style={{ marginTop: 8 }} />
                     <FormBlockView>
-                      <FormBlockViewField title="ФИО:" value={`${user?.surname} ${user?.name} ${user?.patronym}`} />
+                      <FormBlockViewField title="ФИО:" value={`${user?.name}`} />
                     </FormBlockView>
                     <FormBlockView>
                       <FormBlockViewField title="Email:" value={user?.email} />
                     </FormBlockView>
                     <FormBlockView>
                       <FormBlockViewField title="Группа:" value={user?.groupCode} />
-                    </FormBlockView>
-                    <FormBlockView>
-                      <FormBlockViewField title="Курс:" value={user?.courseNumber.toString()} />
                     </FormBlockView>
                   </View>
 

@@ -67,7 +67,6 @@ const MyAbsencesScreen: React.FC = () => {
           />
         )}
 
-        {/* Floating Action Button */}
         <Button
           type="primary"
           style={{
