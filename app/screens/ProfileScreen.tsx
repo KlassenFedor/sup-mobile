@@ -18,14 +18,14 @@ import {
   Button,
 } from '@sup-components';
 import { API_URL, requests } from '../shared/api_requests';
-import { getAccessToken } from '../shared/helpers';
+import { getAccessToken, isAuthorized } from '../shared/helpers';
 
 type RootStackParamList = {
   Auth: undefined;
   Tabs: undefined;
 };
 
-type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
+type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Auth' | 'Tabs'>;
 
 const ProfileScreen: React.FC = () => {
   const { logout } = useAuth();
@@ -37,6 +37,10 @@ const ProfileScreen: React.FC = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
+        if (await isAuthorized() === false) {
+          console.log('not authorized');
+          logout();
+        }
         const accessToken = await getAccessToken();
         const response = await axios.get<UserProfileDTO>(`${API_URL}/${requests.PROFILE}`, {
           headers: { Authorization: `Bearer ${accessToken}` },

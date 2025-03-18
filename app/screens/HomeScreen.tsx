@@ -4,9 +4,10 @@ import { CardItem, ScreenDataWrapper, ScreenHeader } from '@sup-components';
 import { AbsenceDTO } from '../shared/types';
 import { Alert, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { getAccessToken } from '../shared/helpers';
+import { getAccessToken, isAuthorized } from '../shared/helpers';
 import axios from 'axios';
 import { API_URL, requests } from '../shared/api_requests';
+import { useAuth } from '../context/AuthContext';
 
 type RootStackParamList = {
   AbsenceDetails: { absenceId: string };
@@ -18,10 +19,14 @@ const HomeScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const { logout } = useAuth();
 
   const fetchData = async () => {
     try {
       setLoading(true);
+      if (await isAuthorized() === false) {
+        logout();
+      }
       const token = await getAccessToken();
       const response = await axios.get(`${API_URL}/${requests.ABSENCES_ON_CHECKING}`, {
         headers: {

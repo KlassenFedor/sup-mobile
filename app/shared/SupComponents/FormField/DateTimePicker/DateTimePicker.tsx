@@ -67,7 +67,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
     <DatePicker
       defaultValue={initialValue ? convertStrToDate(initialValue) : undefined}
       filter={{
-        hour: (val: number) => (val >= 8 && val <= 22) || val === 0,
+        hour: (val: number) => (val >= 8 && val <= 23) || val === 0,
       }}
       format={format}
       itemStyle={styles.itemStyle}

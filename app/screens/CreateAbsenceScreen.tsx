@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { ContentBlock, DateTimePicker, FormItem, ScreenDataWrapper, ScreenHeader, Button, Icon } from '@sup-components';
-import { Colours } from '../shared/constants';
+import { Colours, ServerDateFormat } from '../shared/constants';
 import { NavigationType } from '../context/NavigationContext';
 import { Form, Text } from '@ant-design/react-native';
 import moment from 'moment';
 import axios from 'axios';
 import { API_URL, requests } from '../shared/api_requests';
-import { getAccessToken } from '../shared/helpers';
+import { getAccessToken, isAuthorized } from '../shared/helpers';
+import { useAuth } from '../context/AuthContext';
 
 const CreateAbsenceScreen: React.FC<{
   navigation: NavigationType;
@@ -16,7 +17,7 @@ const CreateAbsenceScreen: React.FC<{
   const [form] = Form.useForm();
   const [startDateVisible, setStartDateVisible] = useState(false);
   const startDate = Form.useWatch('startDate', form);
-
+  const { logout } = useAuth();
   const [endDateVisible, setEndDateVisible] = useState(false);
   const endDate = Form.useWatch('endDate', form);
   const [attachedFiles, setAttachedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
@@ -50,6 +51,9 @@ const CreateAbsenceScreen: React.FC<{
 
   const handleSubmit = async () => {
     try {
+      if (await isAuthorized() === false) {
+        logout();
+      }
       const token = await getAccessToken();
   
       if (!token) {
@@ -63,8 +67,8 @@ const CreateAbsenceScreen: React.FC<{
       }
   
       const absenceData = {
-        startDate: moment(startDate).format('YYYY-MM-DD HH:mm'),
-        endDate: moment(endDate).format('YYYY-MM-DD HH:mm'),
+        startDate: moment(startDate).format(ServerDateFormat),
+        endDate: moment(endDate).format(ServerDateFormat),
         attachedFiles: attachedFiles.map((file) => ({
           uri: file.uri,
           name: file.name,

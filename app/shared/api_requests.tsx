@@ -11,8 +11,8 @@ export enum requests {
     LOGOUT = 'logout',
     PROFILE = 'profile',
     MY_ABSENCES = 'skips',
-    GET_ABSENCE = 'get_absence/{id}',
+    GET_ABSENCE = 'get_skip/{id}',
     CREATE_ABSENCE = 'create_absence',
     EXTEND_ABSENCE = 'skips/{skip}/extensions',
-    ABSENCES_ON_CHECKING = 'absences_on_checking',
+    ABSENCES_ON_CHECKING = 'skips_on_checking',
 }

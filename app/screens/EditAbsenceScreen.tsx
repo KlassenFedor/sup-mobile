@@ -15,13 +15,14 @@ import {
   ScreenHeader,
 } from '@sup-components';
 import { NavigationType } from '../context/NavigationContext';
-import { AbsenceStatusToRussian, Colours } from '../shared/constants';
-import { convertStrToDate, getAccessToken } from '../shared/helpers';
+import { AbsenceStatusToRussian, Colours, ServerDateFormat } from '../shared/constants';
+import { convertStrToDate, getAccessToken, isAuthorized } from '../shared/helpers';
 import moment from 'moment';
 import { API_URL, formatString, requests } from '../shared/api_requests';
 import axios from 'axios';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { AbsenceDTO, AbsenceWithUserDTO, UserProfileDTO } from '../shared/types';
+import { useAuth } from '../context/AuthContext';
 
 type RootStackParamList = {
   EditAbsence: { absenceId: string };
@@ -33,14 +34,17 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
   const [dateVisible, setDateVisible] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
   const [absenceToEdit, setAbsenceToEdit] = useState<AbsenceWithUserDTO | null>(null);
-  const startDate = Form.useWatch('startDate', form);
   const endDate = Form.useWatch('endDate', form);
   const route = useRoute<EditAbsenceRouteProp>();
   const { absenceId } = route.params;
+  const { logout } = useAuth();
 
   useEffect(() => {
     const fetchAbsenceData = async () => {
       try {
+        if (await isAuthorized() === false) {
+          logout();
+        }
         const accessToken = await getAccessToken();
         const response = await axios.get<AbsenceDTO>(
           `${API_URL}/${formatString(requests.GET_ABSENCE, { id: absenceId })}`,
@@ -59,6 +63,7 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
           status: response.data.status,
           student: studentResponse.data,
         });
+        console.log(absenceToEdit);
       } catch (error) {
         Alert.alert('Ошибка', 'Не удалось получить данные пропуска');
         console.error(error);
@@ -96,14 +101,17 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
         return;
       }
 
+      const startDate = absenceToEdit.startDate;
+      console.log(startDate, endDate);
       if (!startDate || !endDate) {
+        console.log(startDate, endDate);
         alert('Пожалуйста, выберите даты.');
         return;
       }
 
       const formData = new FormData();
-      formData.append('startDate', moment(startDate).format('YYYY-MM-DD HH:mm'));
-      formData.append('endDate', moment(endDate).format('YYYY-MM-DD HH:mm'));
+      formData.append('startDate', startDate);
+      formData.append('endDate', moment(endDate).format(ServerDateFormat));
 
       attachedFiles.forEach((file, index) => {
         formData.append(`files`, {
@@ -113,8 +121,10 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
         } as any);
       });
 
+      console.log('Sending data:', formData);
+
       const response = await axios.post(
-        `${API_URL}/${formatString(requests.EXTEND_ABSENCE, { id: absenceToEdit.id })}`,
+        `${API_URL}/${formatString(requests.EXTEND_ABSENCE, { skip: absenceToEdit.id })}`,
         formData,
         {
           headers: {
@@ -145,22 +155,38 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
         onBackPress={goBack}
         actionButtonTitle="сохранить"
         onActionButtonPress={handleSubmit}
-      />
+      ></ScreenHeader>
       <ScreenDataWrapper style={{ paddingBottom: 0 }}>
         <ContentBlock style={{ backgroundColor: Colours.WHITE, borderRadius: 12 }}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <Form name="edit-absence-details" form={form} layout="vertical" preserve={false}>
-              <FormFieldsBlockTitle title="Полная информация" />
+          <ScrollView showsVerticalScrollIndicator={false} style={{ borderTopColor: 'transparent', borderTopWidth: 0 }}>
+            <Form
+              name="edit-absence-details"
+              form={form}
+              layout="vertical"
+              style={{ backgroundColor: Colours.WHITE }}
+              styles={{ BodyBottomLine: { height: 0 }, Body: { borderTopColor: 'transparent', borderTopWidth: 0 } }}
+              preserve={false}
+            >
+              <FormFieldsBlockTitle title="Полная информация" style={{ marginTop: 8 }} />
               <FormBlockView>
-                <FormBlockViewField title="ФИО студента:" value={absenceToEdit.student.name} />
+                <FormBlockViewField
+                  title="ФИО студента:"
+                  value={`${absenceToEdit.student.name}`}
+                />
               </FormBlockView>
-              <FormBlockView>
+              <FormBlockView style={{ alignItems: 'stretch' }}>
                 <FormBlockViewField title="Период:" />
                 <FormBlockViewField iconName="calendar-alt" iconLib="FontAwesome5" title="с:" value={absenceToEdit.startDate} />
-                <FormItem label="по:" name={'endDate'} initialValue={convertStrToDate(absenceToEdit.endDate)} rules={[{ required: true }]}>
+                <FormItem
+                  label="по:"
+                  name={'endDate'}
+                  initialValue={absenceToEdit.endDate ? convertStrToDate(absenceToEdit.endDate) : undefined}
+                  rules={[{ required: true }]}
+                >
                   <DateTimePicker
                     format={'DD.MM.YYYY HH:mm'}
                     formItemName="endDate"
+                    initialValue={absenceToEdit.endDate}
                     minDate={absenceToEdit.endDate}
                     precision={'minute'}
                     visible={dateVisible}
@@ -171,13 +197,43 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
               <FormBlockView>
                 <FormBlockViewField
                   title="Статус:"
-                  value={AbsenceStatusToRussian[absenceToEdit.status as 'checking' | 'approved' | 'rejected']}
+                  value={`${AbsenceStatusToRussian[absenceToEdit.status as 'checking' | 'approved' | 'rejected']}`}
                 />
               </FormBlockView>
 
-              <FormFieldsBlockTitle title="Вложения" />
-              <FormBlockViewField title="Документы:" value={absenceToEdit.files.length.toString()} />
-
+              <FormFieldsBlockTitle title="Вложения" style={{ marginTop: 24 }} />
+              <FormBlockView style={{ alignItems: 'stretch' }}>
+                <FormBlockViewField title="Документы:" value={(absenceToEdit.files || []).length.toString()} />
+                {absenceToEdit.files &&
+                  absenceToEdit.files.map((file, index) => (
+                    <View
+                      key={index}
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        paddingBlock: 4,
+                        paddingInline: 4,
+                        marginBottom: 4,
+                      }}
+                    >
+                      <View style={{ flexDirection: 'row' }}>
+                        <Icon name="filetext1" color={Colours.PRIMARY} style={{ marginRight: 4 }} />
+                        <Text style={{ color: Colours.BLACK, fontSize: 14 }}>{file}</Text>
+                      </View>
+                      <Button
+                        wrap
+                        type="ghost"
+                        style={{ borderColor: Colours.DANGER, borderWidth: 2, paddingBlock: 4, paddingInline: 8, height: 'auto' }}
+                        onPress={() => {
+                          console.log('file to delete', file);
+                        }}
+                      >
+                        <Icon name="delete" color={Colours.DANGER} />
+                      </Button>
+                    </View>
+                  ))}
+              </FormBlockView>
               <Button onPress={handleAttachFile} wrap type="ghost" style={{ borderWidth: 2, marginBottom: 12, marginTop: 8 }}>
                 <Icon name="upload" size={20} color={Colours.PRIMARY} />
                 <Text style={{ color: Colours.PRIMARY, marginLeft: 4 }}>Прикрепить документы</Text>

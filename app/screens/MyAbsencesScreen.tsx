@@ -7,7 +7,8 @@ import { Colours } from '../shared/constants';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import { API_URL, requests } from '../shared/api_requests';
-import { getAccessToken } from '../shared/helpers';
+import { getAccessToken, isAuthorized } from '../shared/helpers';
+import { useAuth } from '../context/AuthContext';
 
 type RootStackParamList = {
   CreateAbsence: undefined;
@@ -19,10 +20,14 @@ const MyAbsencesScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { logout } = useAuth();
 
   const fetchData = async () => {
     try {
       setLoading(true);
+      if (await isAuthorized() === false) {
+        logout();
+      }
       const token = await getAccessToken();
       const response = await axios.get(`${API_URL}/${requests.MY_ABSENCES}`, {
         headers: {

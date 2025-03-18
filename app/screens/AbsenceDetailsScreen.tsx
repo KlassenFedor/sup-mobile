@@ -15,9 +15,10 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { Form } from '@ant-design/react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { API_URL, formatString, requests } from '../shared/api_requests';
-import { getAccessToken } from '../shared/helpers';
+import { getAccessToken, isAuthorized } from '../shared/helpers';
 import axios from 'axios';
-import { AbsenceDTO, AbsenceWithUserDTO, UserProfileDTO } from '../shared/types';
+import { AbsenceDTO, AbsenceStatus, AbsenceWithUserDTO, UserProfileDTO } from '../shared/types';
+import { useAuth } from '../context/AuthContext';
 
 type RootStackParamList = {
   AbsenceDetails: { absenceId: string };
@@ -30,10 +31,14 @@ const AbsenceDetailsScreen: React.FC = () => {
   const { absenceId } = route.params;
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [absence, setAbsence] = useState<AbsenceWithUserDTO | null>(null);
+  const { logout } = useAuth();
 
   useEffect(() => {
     const fetchAbsenceData = async () => {
       try {
+        if (await isAuthorized() === false) {
+          logout();
+        }
         const accessToken = await getAccessToken();
         const response = await axios.get<AbsenceDTO>(
           `${API_URL}/${formatString(requests.GET_ABSENCE, { id: absenceId })}`,
@@ -49,9 +54,10 @@ const AbsenceDetailsScreen: React.FC = () => {
           name: response.data.name,
           startDate: response.data.startDate,
           endDate: response.data.endDate,
-          status: response.data.status,
+          status: response.data.status as AbsenceStatus,
           student: studentResponse.data,
         });
+        console.log(absence);
       } catch (error) {
         Alert.alert('Ошибка', 'Не удалось получить данные пропуска');
         console.error(error);

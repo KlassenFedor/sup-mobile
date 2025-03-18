@@ -40,17 +40,25 @@ fake_cards_db = {
         {
             "id": "1",
             "title": "Пропуск 1",
-            "startDate": "2023-10-01",
-            "endDate": "2023-10-15",
-            "status": "Approved",
+            "startDate": "01.10.2023 00:00",
+            "endDate": "15.10.2023 23:59",
+            "status": "approved",
             "files": ["https://example.com/file1.pdf", "https://example.com/file2.jpg"],
         },
         {
             "id": "2",
             "title": "Пропуск 2",
-            "startDate": "2023-11-01",
-            "endDate": "2023-11-30",
-            "status": "Pending",
+            "startDate": "01.11.2023 00:00",
+            "endDate": "30.11.2023 23:59",
+            "status": "checking",
+            "files": [],
+        },
+        {
+            "id": "3",
+            "title": "Пропуск 3",
+            "startDate": "01.11.2023 00:00",
+            "endDate": "30.11.2023 23:59",
+            "status": "rejected",
             "files": [],
         },
     ]
@@ -89,9 +97,8 @@ class RefreshTokenRequest(BaseModel):
 
 
 # Card model
-class CardItem(BaseModel):
+class Skip(BaseModel):
     id: str
-    title: str
     startDate: str
     endDate: str
     status: str
@@ -127,7 +134,6 @@ def login(request: LoginRequest):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     access_token = create_token({"sub": request.username}, timedelta(days=ACCESS_TOKEN_EXPIRE_MINUTES))
-    # refresh_token = create_token({"sub": request.username}, timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
 
     return {"token": access_token, "token_type": "bearer"}
 
@@ -149,7 +155,7 @@ def refresh_token(token: RefreshTokenRequest):
 
 
 # Get user cards endpoint
-@app.get("/skips", response_model=list[CardItem])
+@app.get("/skips", response_model=list[Skip])
 def get_user_cards(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -165,8 +171,8 @@ def get_user_cards(token: str = Depends(oauth2_scheme)):
 
 
 # Add new card endpoint
-@app.post("/cards", response_model=CardItem)
-def add_user_card(card: CardItem, token: str = Depends(oauth2_scheme)):
+@app.post("/skips", response_model=Skip)
+def add_user_card(card: Skip, token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
@@ -208,32 +214,47 @@ def get_profile(token: str = Depends(oauth2_scheme)):
 
     return user_profile
 
-# @app.post("/update-abscence", response_model=CardItem)
-# def update_absence(card: CardItem, token: str = Depends(oauth2_scheme)):
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         username: str = payload.get("sub")
-#         if username is None:
-#             raise HTTPException(status_code=401, detail="Invalid token")
-#     except JWTError:
-#         raise HTTPException(status_code=401, detail="Invalid token")
 
-#     card_id = card.id
-#     updated_card = {
-#         "id": card_id,
-#         "title": card.title,
-#         "startDate": card.startDate,
-#         "endDate": card.endDate,
-#         "status": card.status,
-#         "files": card.files,
-#     }
+# Get skip by ID
+@app.get("/get_skip/{id}", response_model=Skip)
+def get_skip(id: str, token: str = Depends(oauth2_scheme)):
+    for skip in fake_cards_db.get("user", []):
+        if skip["id"] == id:
+            return skip
+    raise HTTPException(status_code=404, detail="Skip not found")
 
-#     if username not in fake_cards_db:
-#         raise HTTPException(status_code=404, detail="User not found")
 
-#     fake_cards_db[username].append(updated_card)
+# Create a new skip
+@app.post("/create_skip", response_model=Skip)
+def create_skip(skip: Skip, token: str = Depends(oauth2_scheme)):
+    new_skip = {
+        "id": str(uuid.uuid4()),
+        "startDate": skip.startDate,
+        "endDate": skip.endDate,
+        "status": skip.status,
+        "files": skip.files,
+    }
+    fake_cards_db.setdefault("user", []).append(new_skip)
+    return new_skip
 
-#     return updated_card
+
+# Extend skip
+@app.post("/skips/{skip_id}/extensions", response_model=Skip)
+def extend_skip(skip_id: str, new_end_date: str, new_files: list[str], token: str = Depends(oauth2_scheme)):
+    for skips in fake_cards_db.values():
+        for skip in skips:
+            if skip["id"] == skip_id:
+                skip["endDate"] = new_end_date
+                skip["files"].extend(new_files)  # Update file list
+                return skip
+    raise HTTPException(status_code=404, detail="Skip not found")
+
+
+# Get skips with status 'Pending'
+@app.get("/skips_on_checking", response_model=list[Skip])
+def get_absences_on_checking(token: str = Depends(oauth2_scheme)):
+    return [skip for skip in fake_cards_db.get("user", []) if skip["status"] == "checking"]
+
 
 # Install the required dependencies: pip install fastapi uvicorn python-jose[cryptography] passlib
 # Run server: `uvicorn server:app --reload`
