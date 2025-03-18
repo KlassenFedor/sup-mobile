@@ -24,13 +24,27 @@ const CreateAbsenceScreen: React.FC<{
   console.log('create formValues', form.getFieldsValue());
 
   const handleAttachFile = async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: '*/*',
-      copyToCacheDirectory: true,
-    });
-
-    if (result.assets) {
-      setAttachedFiles([...attachedFiles]);
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: '*/*',
+        multiple: true,
+        copyToCacheDirectory: true,
+      });
+  
+      if (!result.assets) return; 
+  
+      const newFiles = result.assets.filter(
+        (file) => !attachedFiles.some((existingFile) => existingFile.uri === file.uri)
+      );
+  
+      if (newFiles.length > 0) {
+        setAttachedFiles((prevFiles) => [...prevFiles, ...newFiles]);
+      } else {
+        alert('Вы уже прикрепили этот файл.');
+      }
+    } catch (error) {
+      console.error('Ошибка при выборе файла:', error);
+      alert('Не удалось прикрепить файл. Попробуйте снова.');
     }
   };
 
