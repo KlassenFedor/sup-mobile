@@ -127,7 +127,7 @@ const AbsenceDetailsScreen: React.FC = () => {
                 <FormBlockView>
                   <FormBlockViewField title="Документы:" value={absence.files ? 'есть' : 'нет'} />
                   {absence.files &&
-                    absence.files.map((file, index) => <FormBlockViewField key={index} title={file} iconName="filetext1" />)}
+                    absence.files.map((file, index) => <FormBlockViewField key={index} title={file.name} iconName="filetext1" />)}
                 </FormBlockView>
               </View>
 

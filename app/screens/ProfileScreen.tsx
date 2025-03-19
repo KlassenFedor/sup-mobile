@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, StyleSheet, ActivityIndicator, Alert, ScrollView, View } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { Colours, UserMock } from '../shared/constants';

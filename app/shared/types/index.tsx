@@ -1,3 +1,4 @@
+import { DocumentPickerAsset } from 'expo-document-picker';
 import { StyleProp, ViewStyle } from 'react-native';
 
 export type StylesType = StyleProp<ViewStyle>;
@@ -12,7 +13,7 @@ export type AbsenceStatus = 'checking' | 'approved' | 'rejected';
 
 export interface AbsenceDTO {
   id: string;
-  files: string[];
+  files: fileDTO[];
   name: string;
   startDate: string;
   endDate: string;
@@ -28,12 +29,18 @@ export interface UserProfileDTO {
   courseNumber: string | number;
 }
 
+export interface fileDTO {
+  name: string;
+  url: string;
+  mimeType: string;
+}
+
 export interface AbsenceWithUserDTO {
   id: string;
-  files: string[];
   name: string;
   startDate: string;
   endDate: string;
   status: AbsenceStatus;
+  files: fileDTO[];
   student: UserProfileDTO;
 }

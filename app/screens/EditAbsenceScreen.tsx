@@ -42,25 +42,21 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
   useEffect(() => {
     const fetchAbsenceData = async () => {
       try {
-        if (await isAuthorized() === false) {
+        if (!(await isAuthorized())) {
           logout();
+          return;
         }
         const accessToken = await getAccessToken();
-        const response = await axios.get<AbsenceDTO>(
-          `${API_URL}/${formatString(requests.GET_ABSENCE, { id: absenceId })}`,
-          { headers: { Authorization: `Bearer ${accessToken}` } }
-        );
+        const response = await axios.get<AbsenceDTO>(`${API_URL}/${formatString(requests.GET_ABSENCE, { id: absenceId })}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
         const studentResponse = await axios.get<UserProfileDTO>(`${API_URL}/${requests.PROFILE}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
         setAbsenceToEdit({
-          id: response.data.id,
-          files: response.data.files || [],
-          name: response.data.name,
-          startDate: response.data.startDate,
-          endDate: response.data.endDate,
-          status: response.data.status,
+          ...response.data,
           student: studentResponse.data,
         });
         console.log(absenceToEdit);
@@ -73,56 +69,67 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
     fetchAbsenceData();
   }, [absenceId]);
 
-  const goBack = () => {
-    navigation.goBack();
-  };
+  useEffect(() => {
+    if (absenceToEdit?.files) {
+      const initialFiles = absenceToEdit.files.map((file) => ({
+        uri: file.url,
+        name: file.name,
+        type: file.mimeType || 'application/octet-stream',
+      }));
+      setAttachedFiles(initialFiles);
+    }
+  }, [absenceToEdit]);
+
+  const goBack = () => navigation.goBack();
 
   const handleAttachFile = async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: '*/*',
-      copyToCacheDirectory: true,
-    });
-
-    if (result.assets) {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({ type: '*/*', multiple: true });
+  
+      if (result.canceled || !result.assets) {
+        console.log('User canceled file selection.');
+        return;
+      }
+  
       setAttachedFiles((prevFiles) => [...prevFiles, ...result.assets]);
+    } catch (err) {
+      console.error('Ошибка выбора файла:', err);
     }
+  };  
+
+  const handleDeleteFile = (fileName: string) => {
+    setAttachedFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileName));
   };
 
   const handleSubmit = async () => {
     try {
       if (!absenceToEdit) {
-        alert('Ошибка: Данные отсутствуют.');
+        Alert.alert('Ошибка', 'Данные отсутствуют.');
         return;
       }
 
       const token = await getAccessToken();
       if (!token) {
-        alert('Ошибка: Токен не найден. Авторизуйтесь заново.');
+        Alert.alert('Ошибка', 'Авторизуйтесь заново.');
         return;
       }
 
-      const startDate = absenceToEdit.startDate;
-      console.log(startDate, endDate);
-      if (!startDate || !endDate) {
-        console.log(startDate, endDate);
-        alert('Пожалуйста, выберите даты.');
+      if (!absenceToEdit.startDate || !endDate) {
+        Alert.alert('Ошибка', 'Выберите даты.');
         return;
       }
 
       const formData = new FormData();
-      formData.append('startDate', startDate);
+      formData.append('startDate', absenceToEdit.startDate);
       formData.append('endDate', moment(endDate).format(ServerDateFormat));
 
-      attachedFiles.forEach((file, index) => {
-        formData.append(`files`, {
-          uri: file.uri,
-          name: file.name,
-          type: file.mimeType || 'application/octet-stream',
-        } as any);
-      });
+      for (const file of attachedFiles) {
+        const response = await fetch(file.uri);
+        const blob = await response.blob();
+        formData.append('files', blob, file.name || 'file');
+      }
 
-      console.log('Sending data:', formData);
-
+      console.log(formData);
       const response = await axios.post(
         `${API_URL}/${formatString(requests.EXTEND_ABSENCE, { skip: absenceToEdit.id })}`,
         formData,
@@ -134,12 +141,12 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
         }
       );
 
-      console.log('Response:', response.data);
-      alert('Данные успешно отправлены!');
+      console.log('Ответ сервера:', response.data);
+      Alert.alert('Успешно', 'Данные обновлены.');
       navigation.goBack();
     } catch (error) {
-      console.error('Ошибка отправки:', error);
-      alert('Ошибка при отправке данных.');
+      console.error('Ошибка при отправке:', error);
+      Alert.alert('Ошибка', 'Не удалось отправить данные.');
     }
   };
 
@@ -155,7 +162,7 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
         onBackPress={goBack}
         actionButtonTitle="сохранить"
         onActionButtonPress={handleSubmit}
-      ></ScreenHeader>
+      />
       <ScreenDataWrapper style={{ paddingBottom: 0 }}>
         <ContentBlock style={{ backgroundColor: Colours.WHITE, borderRadius: 12 }}>
           <ScrollView showsVerticalScrollIndicator={false} style={{ borderTopColor: 'transparent', borderTopWidth: 0 }}>
@@ -164,15 +171,11 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
               form={form}
               layout="vertical"
               style={{ backgroundColor: Colours.WHITE }}
-              styles={{ BodyBottomLine: { height: 0 }, Body: { borderTopColor: 'transparent', borderTopWidth: 0 } }}
               preserve={false}
             >
               <FormFieldsBlockTitle title="Полная информация" style={{ marginTop: 8 }} />
               <FormBlockView>
-                <FormBlockViewField
-                  title="ФИО студента:"
-                  value={`${absenceToEdit.student.name}`}
-                />
+                <FormBlockViewField title="ФИО студента:" value={`${absenceToEdit.student.name}`} />
               </FormBlockView>
               <FormBlockView style={{ alignItems: 'stretch' }}>
                 <FormBlockViewField title="Период:" />
@@ -203,9 +206,9 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
 
               <FormFieldsBlockTitle title="Вложения" style={{ marginTop: 24 }} />
               <FormBlockView style={{ alignItems: 'stretch' }}>
-                <FormBlockViewField title="Документы:" value={(absenceToEdit.files || []).length.toString()} />
-                {absenceToEdit.files &&
-                  absenceToEdit.files.map((file, index) => (
+                <FormBlockViewField title="Документы:" value={attachedFiles.length.toString()} />
+                {attachedFiles.length > 0 ? (
+                  attachedFiles.map((file, index) => (
                     <View
                       key={index}
                       style={{
@@ -219,20 +222,27 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
                     >
                       <View style={{ flexDirection: 'row' }}>
                         <Icon name="filetext1" color={Colours.PRIMARY} style={{ marginRight: 4 }} />
-                        <Text style={{ color: Colours.BLACK, fontSize: 14 }}>{file}</Text>
+                        <Text style={{ color: Colours.BLACK, fontSize: 14 }}>{file.name}</Text>
                       </View>
                       <Button
                         wrap
                         type="ghost"
-                        style={{ borderColor: Colours.DANGER, borderWidth: 2, paddingBlock: 4, paddingInline: 8, height: 'auto' }}
-                        onPress={() => {
-                          console.log('file to delete', file);
+                        style={{
+                          borderColor: Colours.DANGER,
+                          borderWidth: 2,
+                          paddingBlock: 4,
+                          paddingInline: 8,
+                          height: 'auto',
                         }}
+                        onPress={() => handleDeleteFile(file.name ?? 'default_filename')}
                       >
                         <Icon name="delete" color={Colours.DANGER} />
                       </Button>
                     </View>
-                  ))}
+                  ))
+                ) : (
+                  <Text style={{ color: Colours.DARK_GREY}}>Нет прикрепленных документов</Text>
+                )}
               </FormBlockView>
               <Button onPress={handleAttachFile} wrap type="ghost" style={{ borderWidth: 2, marginBottom: 12, marginTop: 8 }}>
                 <Icon name="upload" size={20} color={Colours.PRIMARY} />
