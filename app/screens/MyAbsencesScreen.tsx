@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { FlatList, ActivityIndicator, Alert, RefreshControl, TouchableOpacity } from 'react-native';
 import { ScreenDataWrapper, ScreenHeader, CardItem, Button, Icon } from '@sup-components';
-import { AbsenceDTO } from '../shared/types';
+import { AbsenceDTO, AbsenceStatus } from '../shared/types';
 import { Colours } from '../shared/constants';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
@@ -22,6 +22,17 @@ const MyAbsencesScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { logout } = useAuth();
 
+  const mapAbsenceResponseToDTO = (absence: any): AbsenceDTO => {
+    return {
+      id: absence.id.toString(),  // Convert ID to string if necessary
+      documents: absence.document_paths ? JSON.parse(absence.document_paths) : [],  // Parse the stringified array
+      name: `Absence #${absence.id}`,  // You can adjust this based on your needs
+      startDate: absence.start_date,
+      endDate: absence.end_date,
+      status: absence.status as AbsenceStatus,  // Ensure status matches your enum
+    };
+  };
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -34,9 +45,11 @@ const MyAbsencesScreen: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setData(response.data);
+      const newData = response.data['data'];
+      setData(newData.map(mapAbsenceResponseToDTO));
     } catch (error) {
       Alert.alert('Ошибка', 'Не удалось загрузить данные.');
+      console.log(error);
     } finally {
       setLoading(false);
     }

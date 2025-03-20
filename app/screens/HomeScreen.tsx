@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { CardItem, ScreenDataWrapper, ScreenHeader } from '@sup-components';
-import { AbsenceDTO } from '../shared/types';
+import { AbsenceDTO, AbsenceStatus } from '../shared/types';
 import { Alert, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { getAccessToken, isAuthorized } from '../shared/helpers';
@@ -21,6 +21,17 @@ const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { logout } = useAuth();
 
+  const mapAbsenceResponseToDTO = (absence: any): AbsenceDTO => {
+    return {
+      id: absence.id.toString(),  // Convert ID to string if necessary
+      documents: absence.document_paths ? JSON.parse(absence.document_paths) : [],  // Parse the stringified array
+      name: `Absence #${absence.id}`,  // You can adjust this based on your needs
+      startDate: absence.start_date,
+      endDate: absence.end_date,
+      status: absence.status as AbsenceStatus,  // Ensure status matches your enum
+    };
+  };
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -28,14 +39,17 @@ const HomeScreen: React.FC = () => {
         logout();
       }
       const token = await getAccessToken();
-      const response = await axios.get(`${API_URL}/${requests.ABSENCES_ON_CHECKING}`, {
+      const status = 'pending';
+      const response = await axios.get(`${API_URL}/${requests.ABSENCES_ON_CHECKING}?status=${status}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setData(response.data);
+      const newData = response.data['data'];
+      setData(newData.map(mapAbsenceResponseToDTO));
     } catch (error) {
       Alert.alert('Ошибка', 'Не удалось загрузить данные.');
+      console.log(error);
     } finally {
       setLoading(false);
     }

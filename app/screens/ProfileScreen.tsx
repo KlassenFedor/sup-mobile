@@ -73,20 +73,20 @@ const ProfileScreen: React.FC = () => {
               <ContentBlock style={styles.relativeContentBlock}>
                 <ContentBlock flexDirection="row" justifyContent="center">
                   <Text style={{ fontWeight: '600', fontSize: 18 }}>
-                    {user?.surname} {user?.name}
+                    {user?.surname} {user?.fullName}
                   </Text>
                 </ContentBlock>
                 <ContentBlock>
                   <View>
                     <FormFieldsBlockTitle title="Данные пользователя" style={{ marginTop: 8 }} />
                     <FormBlockView>
-                      <FormBlockViewField title="ФИО:" value={`${user?.name}`} />
+                      <FormBlockViewField title="ФИО:" value={`${user?.fullName}`} />
                     </FormBlockView>
                     <FormBlockView>
                       <FormBlockViewField title="Email:" value={user?.email} />
                     </FormBlockView>
                     <FormBlockView>
-                      <FormBlockViewField title="Группа:" value={user?.groupCode} />
+                      <FormBlockViewField title="Группа:" value={String(user?.group_number)} />
                     </FormBlockView>
                   </View>
 

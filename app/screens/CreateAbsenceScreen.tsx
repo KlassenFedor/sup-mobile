@@ -103,8 +103,6 @@ const CreateAbsenceScreen: React.FC<{
       navigation.goBack();
     } catch (error) {
       console.error('Ошибка отправки:', error);
-      console.error(error.request);
-      console.error(error.message);
       alert('Ошибка при отправке данных.');
     }
   };

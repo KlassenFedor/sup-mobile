@@ -9,11 +9,11 @@ export const CardStatus = {
   REJECTED: 'REJECTED',
 };
 
-export type AbsenceStatus = 'checking' | 'approved' | 'rejected';
+export type AbsenceStatus = 'pending' | 'approved' | 'rejected';
 
 export interface AbsenceDTO {
   id: string;
-  files: fileDTO[];
+  documents: string[];
   name: string;
   startDate: string;
   endDate: string;
@@ -21,12 +21,12 @@ export interface AbsenceDTO {
 }
 
 export interface UserProfileDTO {
-  name: string;
-  surname: string;
+  fullName: string;
+  surname?: string;
   patronym?: string;
   email: string;
-  groupCode: string;
-  courseNumber: string | number;
+  group_number?: number;
+  courseNumber?: string | number;
 }
 
 export interface fileDTO {
@@ -37,10 +37,10 @@ export interface fileDTO {
 
 export interface AbsenceWithUserDTO {
   id: string;
-  name: string;
+  name?: string;
   startDate: string;
   endDate: string;
   status: AbsenceStatus;
-  files: fileDTO[];
+  documents: string[];
   student: UserProfileDTO;
 }

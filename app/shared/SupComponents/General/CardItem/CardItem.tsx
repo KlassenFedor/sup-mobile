@@ -13,7 +13,7 @@ type CardProps = {
 
 const getCardStatusColor = (status: AbsenceStatus): string => {
   switch (status) {
-    case 'checking':
+    case 'pending':
     default:
       return Colours.ON_CHECKING_STATUS;
     case 'approved':
@@ -24,14 +24,14 @@ const getCardStatusColor = (status: AbsenceStatus): string => {
 };
 
 const CardItem: React.FC<CardProps> = ({ cardData }) => {
-  const { name, startDate, endDate, status, files } = cardData;
-  const hasAttachedDocs = files && files.length > 0;
+  const { name, startDate, endDate, status, documents } = cardData;
+  const hasAttachedDocs = documents && documents.length > 0;
 
   const handleViewFiles = () => {
-    if (files.length === 0) {
+    if (documents.length === 0) {
       Alert.alert('No Files', 'No attached files for this absence.');
     } else {
-      Alert.alert('Attached Files', files.join('\n')); // Display files in an alert
+      Alert.alert('Attached Files', documents.join('\n')); // Display files in an alert
     }
   };
 

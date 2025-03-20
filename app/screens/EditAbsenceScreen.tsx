@@ -21,7 +21,7 @@ import moment from 'moment';
 import { API_URL, formatString, requests } from '../shared/api_requests';
 import axios from 'axios';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { AbsenceDTO, AbsenceWithUserDTO, UserProfileDTO } from '../shared/types';
+import { AbsenceDTO, AbsenceStatus, AbsenceWithUserDTO, UserProfileDTO } from '../shared/types';
 import { useAuth } from '../context/AuthContext';
 
 type RootStackParamList = {
@@ -47,19 +47,30 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
           return;
         }
         const accessToken = await getAccessToken();
-        const response = await axios.get<AbsenceDTO>(`${API_URL}/${formatString(requests.GET_ABSENCE, { id: absenceId })}`, {
+        const url = `${API_URL}/${formatString(requests.GET_ABSENCE, { id: absenceId })}`;
+        const response = await axios.get(url, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
-        const studentResponse = await axios.get<UserProfileDTO>(`${API_URL}/${requests.PROFILE}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const responseData = response.data?.data;
+        if (!responseData) {
+          throw new Error('Invalid API response format');
+        }
 
-        setAbsenceToEdit({
-          ...response.data,
-          student: studentResponse.data,
-        });
-        console.log(absenceToEdit);
+        const newAbsence: AbsenceWithUserDTO = {
+          id: responseData.id.toString(),
+          documents: responseData.document_paths ? JSON.parse(responseData.document_paths) : [],
+          startDate: responseData.start_date,
+          endDate: responseData.end_date,
+          status: responseData.status as AbsenceStatus,
+          student: {
+            fullName: responseData.user.fullName,
+            email: responseData.user.email,
+          },
+        };
+
+        console.log('Fetched absence data:', newAbsence);
+        setAbsenceToEdit(newAbsence);
       } catch (error) {
         Alert.alert('Ошибка', 'Не удалось получить данные пропуска');
         console.error(error);
@@ -69,16 +80,9 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
     fetchAbsenceData();
   }, [absenceId]);
 
-  useEffect(() => {
-    if (absenceToEdit?.files) {
-      const initialFiles = absenceToEdit.files.map((file) => ({
-        uri: file.url,
-        name: file.name,
-        type: file.mimeType || 'application/octet-stream',
-      }));
-      setAttachedFiles(initialFiles);
-    }
-  }, [absenceToEdit]);
+    useEffect(() => {
+      console.log('Updated Absence:', absenceToEdit);
+    }, [absenceToEdit]);
 
   const goBack = () => navigation.goBack();
 
@@ -120,14 +124,16 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
       }
 
       const formData = new FormData();
-      formData.append('startDate', absenceToEdit.startDate);
-      formData.append('endDate', moment(endDate).format(ServerDateFormat));
-
-      for (const file of attachedFiles) {
-        const response = await fetch(file.uri);
-        const blob = await response.blob();
-        formData.append('files', blob, file.name || 'file');
-      }
+      formData.append('new_end_date', moment(endDate).format(ServerDateFormat));
+      attachedFiles.forEach((file) => {
+        if (file?.uri) {
+          formData.append('documents[]', {
+            uri: file.uri,
+            name: file.name || `file_${Date.now()}`, 
+            type: file.mimeType || 'application/octet-stream', 
+          } as any);
+        }
+      });
 
       console.log(formData);
       const response = await axios.post(
@@ -175,23 +181,23 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
             >
               <FormFieldsBlockTitle title="Полная информация" style={{ marginTop: 8 }} />
               <FormBlockView>
-                <FormBlockViewField title="ФИО студента:" value={`${absenceToEdit.student.name}`} />
+                <FormBlockViewField title="ФИО студента:" value={`${absenceToEdit.student.fullName}`} />
               </FormBlockView>
               <FormBlockView style={{ alignItems: 'stretch' }}>
                 <FormBlockViewField title="Период:" />
-                <FormBlockViewField iconName="calendar-alt" iconLib="FontAwesome5" title="с:" value={absenceToEdit.startDate} />
+                <FormBlockViewField iconName="calendar-alt" iconLib="FontAwesome5" title="с:" value={moment(absenceToEdit.startDate).format(ServerDateFormat)} />
                 <FormItem
                   label="по:"
                   name={'endDate'}
-                  initialValue={absenceToEdit.endDate ? convertStrToDate(absenceToEdit.endDate) : undefined}
+                  initialValue={absenceToEdit.endDate ? moment(absenceToEdit.endDate).format(ServerDateFormat) : undefined}
                   rules={[{ required: true }]}
                 >
                   <DateTimePicker
-                    format={'DD.MM.YYYY HH:mm'}
+                    format={'DD.MM.YYYY'}
                     formItemName="endDate"
-                    initialValue={absenceToEdit.endDate}
-                    minDate={absenceToEdit.endDate}
-                    precision={'minute'}
+                    initialValue={moment(absenceToEdit.endDate).format(ServerDateFormat)}
+                    minDate={moment(absenceToEdit.endDate).format(ServerDateFormat)}
+                    precision={'day'}
                     visible={dateVisible}
                     setVisible={setDateVisible}
                   />
@@ -200,13 +206,19 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
               <FormBlockView>
                 <FormBlockViewField
                   title="Статус:"
-                  value={`${AbsenceStatusToRussian[absenceToEdit.status as 'checking' | 'approved' | 'rejected']}`}
+                  value={`${AbsenceStatusToRussian[absenceToEdit.status as 'pending' | 'approved' | 'rejected']}`}
                 />
               </FormBlockView>
 
               <FormFieldsBlockTitle title="Вложения" style={{ marginTop: 24 }} />
               <FormBlockView style={{ alignItems: 'stretch' }}>
-                <FormBlockViewField title="Документы:" value={attachedFiles.length.toString()} />
+                <FormBlockViewField title="Документы:" value={(attachedFiles.length + absenceToEdit.documents.length).toString()} />
+                {absenceToEdit.documents.map((doc, index) => (
+                  <View key={index} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 4 }}>
+                    <Icon name="filetext1" color={Colours.PRIMARY} style={{ marginRight: 4 }} />
+                    <Text style={{ color: Colours.BLACK, fontSize: 14 }}>{doc}</Text>
+                  </View>
+                ))}
                 {attachedFiles.length > 0 ? (
                   attachedFiles.map((file, index) => (
                     <View

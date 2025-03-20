@@ -20,7 +20,7 @@ export enum Colours {
 }
 
 export enum AbsenceStatusToRussian {
-  checking = 'на проверке',
+  pending = 'на проверке',
   approved = 'подтвержден',
   rejected = 'отклонен',
 }
@@ -46,10 +46,10 @@ export const AbsenceMock = {
 };
 
 export const UserMock: UserProfileDTO = {
-  name: 'Иван',
+  fullName: 'Иван',
   surname: 'Иванов',
   patronym: 'Иванович',
   email: 'ivan.ivanov@mail.com',
-  groupCode: '128765',
+  group_number: 128765,
   courseNumber: 2,
 };
