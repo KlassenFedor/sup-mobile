@@ -142,8 +142,9 @@ const AbsenceDetailsScreen: React.FC = () => {
 
               <Button
                 wrap
-                type="ghost"
+                type={(absence.status === 'approved') ? 'ghost' : 'warning'}
                 onPress={openEditScreen}
+                disabled={!(absence.status === 'approved')} 
                 style={{ marginTop: 16, marginLeft: 12, marginBottom: 12, borderWidth: 2, alignItems: 'flex-start' }}
               >
                 Продлить пропуск
