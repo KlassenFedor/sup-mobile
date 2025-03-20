@@ -26,6 +26,7 @@ const CreateAbsenceScreen: React.FC<{
 
   const handleAttachFile = async () => {
     try {
+      console.log('test');
       const result = await DocumentPicker.getDocumentAsync({
         type: '*/*',
         multiple: true,
@@ -67,29 +68,28 @@ const CreateAbsenceScreen: React.FC<{
       }
   
       const absenceData = {
-        startDate: moment(startDate).format(ServerDateFormat),
-        endDate: moment(endDate).format(ServerDateFormat),
-        attachedFiles: attachedFiles.map((file) => ({
-          uri: file.uri,
-          name: file.name,
-          type: file.mimeType || 'application/octet-stream',
-        })),
+        start_date: moment(startDate).format(ServerDateFormat),
+        end_date: moment(endDate).format(ServerDateFormat),
+        attached_files: attachedFiles
       };
-  
-      console.log('Sending data:', absenceData);
-  
+
       const formData = new FormData();
-      formData.append('startDate', absenceData.startDate);
-      formData.append('endDate', absenceData.endDate);
-  
-      attachedFiles.forEach((file, index) => {
-        formData.append(`file_${index}`, {
-          uri: file.uri,
-          name: file.name,
-          type: file.mimeType || 'application/octet-stream',
-        } as any);
+      formData.append('start_date', absenceData.start_date);
+      formData.append('end_date', absenceData.end_date);
+      absenceData.attached_files.forEach((file) => {
+        if (file?.uri) {
+          formData.append('documents[]', {
+            uri: file.uri,
+            name: file.name || `file_${Date.now()}`, 
+            type: file.mimeType || 'application/octet-stream', 
+          } as any);
+        }
       });
-  
+
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
       const response = await axios.post(`${API_URL}/${requests.CREATE_ABSENCE}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -103,6 +103,8 @@ const CreateAbsenceScreen: React.FC<{
       navigation.goBack();
     } catch (error) {
       console.error('Ошибка отправки:', error);
+      console.error(error.request);
+      console.error(error.message);
       alert('Ошибка при отправке данных.');
     }
   };

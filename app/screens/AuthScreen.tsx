@@ -15,10 +15,11 @@ const AuthScreen: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`${API_URL}/${requests.LOGIN}`, { username: login, password: password });
+      const response = await axios.post(`${API_URL}/${requests.LOGIN}`, { email: login, password: password });
       const accessToken = response.data['token'];
       await AsyncStorage.setItem('accessToken', accessToken);
       setIsAuthenticated(true);
+      console.log(accessToken);
     } catch (error) {
       Alert.alert('Ошибка', 'Некорректное имя пользователя или пароль.');
       console.log(error);

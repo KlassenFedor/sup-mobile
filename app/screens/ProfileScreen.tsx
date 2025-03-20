@@ -45,6 +45,7 @@ const ProfileScreen: React.FC = () => {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
+        console.log(response.data);
         setUser(response.data);
       } catch (error) {
         Alert.alert('Ошибка', 'Не удалось загрузить профиль');

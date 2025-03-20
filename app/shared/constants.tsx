@@ -27,7 +27,7 @@ export enum AbsenceStatusToRussian {
 
 export const MonthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июнь', 'июль', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 
-export const ServerDateFormat = 'DD.MM.YYYY HH:mm';
+export const ServerDateFormat = 'DD.MM.YYYY';
 
 export const AbsenceMock = {
   id: '2021',
