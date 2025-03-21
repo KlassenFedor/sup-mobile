@@ -1,101 +1,115 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import axios from 'axios';
+import { FlatList, ActivityIndicator, Alert, RefreshControl, TouchableOpacity } from 'react-native';
+import { ScreenDataWrapper, ScreenHeader, CardItem, Button, Icon } from '@sup-components';
+import { AbsenceDTO, AbsenceStatus } from '../shared/types';
+import { Colours } from '../shared/constants';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
+import { API_URL, requests } from '../shared/api_requests';
+import { getAccessToken, isAuthorized } from '../shared/helpers';
+import { useAuth } from '../context/AuthContext';
 
-// Define the type for a single card
-type CardItem = {
-  id: string;
-  title: string;
-  startDate: string;
-  endDate: string;
+type RootStackParamList = {
+  CreateAbsence: undefined;
+  AbsenceDetails: { absenceId: string };
 };
 
-// Sample data for the cards
-const cardData: CardItem[] = [
-  {
-    id: '1',
-    title: 'Пропуск 1',
-    startDate: '2023-10-01',
-    endDate: '2023-10-15',
-  },
-  {
-    id: '2',
-    title: 'Пропуск 2',
-    startDate: '2023-11-01',
-    endDate: '2023-11-30',
-  },
-  {
-    id: '3',
-    title: 'Пропуск 3',
-    startDate: '2023-12-01',
-    endDate: '2023-12-31',
-  },
-  {
-    id: '4',
-    title: 'Пропуск 4',
-    startDate: '2024-01-01',
-    endDate: '2024-01-31',
-  },
-];
-
-// Card component
-const Card = ({ title, startDate, endDate }: CardItem) => {
-  return (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>{title}</Text>
-      <Text style={styles.cardText}>Start Date: {startDate}</Text>
-      <Text style={styles.cardText}>End Date: {endDate}</Text>
-    </View>
-  );
-};
-
-// Main screen component
 const MyAbsencesScreen: React.FC = () => {
+  const [data, setData] = useState<AbsenceDTO[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { logout } = useAuth();
+
+  const mapAbsenceResponseToDTO = (absence: any): AbsenceDTO => {
+    return {
+      id: absence.id.toString(),  // Convert ID to string if necessary
+      documents: absence.document_paths ? JSON.parse(absence.document_paths) : [],  // Parse the stringified array
+      name: `Absence #${absence.id}`,  // You can adjust this based on your needs
+      startDate: absence.start_date,
+      endDate: absence.end_date,
+      status: absence.status as AbsenceStatus,  // Ensure status matches your enum
+    };
+  };
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      if (await isAuthorized() === false) {
+        logout();
+      }
+      const token = await getAccessToken();
+      const response = await axios.get(`${API_URL}/${requests.MY_ABSENCES}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const newData = response.data['data'];
+      setData(newData.map(mapAbsenceResponseToDTO));
+    } catch (error) {
+      Alert.alert('Ошибка', 'Не удалось загрузить данные.');
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
-    <ScrollView style={styles.container}>
-      <FlatList
-        data={cardData}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Card
-            id={item.id}
-            title={item.title}
-            startDate={item.startDate}
-            endDate={item.endDate}
+    <>
+      <ScreenHeader headerTitle="Мои пропуски" />
+      <ScreenDataWrapper style={{ paddingBottom: 0 }}>
+        {loading ? (
+          <ActivityIndicator size="large" color={Colours.PRIMARY} />
+        ) : (
+          <FlatList
+            data={data}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => navigation.navigate('AbsenceDetails', { absenceId: item.id })}>
+                <CardItem cardData={item} />
+              </TouchableOpacity>
+            )}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            showsVerticalScrollIndicator={false}
           />
         )}
-        scrollEnabled={false} // Disable FlatList scrolling since ScrollView is used
-      />
-    </ScrollView>
+
+        <Button
+          type="primary"
+          style={{
+            position: 'absolute',
+            bottom: 18,
+            right: 18,
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: Colours.PRIMARY,
+            elevation: 4, // Android shadow
+            shadowColor: '#000', // iOS shadow
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 3,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onPress={() => navigation.navigate('CreateAbsence')}
+        >
+          <Icon iconLib="Feather" name="plus" size={24} color={Colours.WHITE} />
+        </Button>
+      </ScreenDataWrapper>
+    </>
   );
 };
-
-// Styles
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#f5f5f5',
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3, // For Android shadow
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  cardText: {
-    fontSize: 14,
-    color: '#666',
-  },
-});
 
 export default MyAbsencesScreen;

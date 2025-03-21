@@ -1,74 +1,66 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { Text, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StackScreenProps } from '@react-navigation/stack';
-import { RootStackParamList } from '../App';
+import { Button, ContentBlock, ScreenDataWrapper, Span, TextInput } from '@sup-components';
+import { Colours } from '@constants';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import { API_URL, requests } from '../shared/api_requests';
 
-type AuthScreenProps = StackScreenProps<RootStackParamList, 'Auth'> & {
-  setIsAuthenticated: (isAuthenticated: boolean) => void;
-};
 
-const AuthScreen: React.FC<AuthScreenProps> = ({ setIsAuthenticated }) => {
+const AuthScreen: React.FC = () => {
   const [login, setLogin] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const { setIsAuthenticated } = useAuth();
 
   const handleLogin = async () => {
-    // Simulate a login API call
-    if (login === 'user' && password === 'password') {
-      // Simulate receiving tokens from the server
-      const accessToken = 'dummyAccessToken';
-      const refreshToken = 'dummyRefreshToken';
-
-      // Save tokens to AsyncStorage
+    try {
+      const response = await axios.post(`${API_URL}/${requests.LOGIN}`, { email: login, password: password });
+      const accessToken = response.data['token'];
       await AsyncStorage.setItem('accessToken', accessToken);
-      await AsyncStorage.setItem('refreshToken', refreshToken);
-
-      // Update authentication state
       setIsAuthenticated(true);
-    } else {
-      Alert.alert('Error', 'Invalid login or password');
+      console.log(accessToken);
+    } catch (error) {
+      Alert.alert('Ошибка', 'Некорректное имя пользователя или пароль.');
+      console.log(error);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Authorization</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Login"
-        value={login}
-        onChangeText={setLogin}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <Button title="Log In" onPress={handleLogin} />
-    </View>
+    <ScreenDataWrapper style={{ backgroundColor: Colours.WHITE }}>
+      <ContentBlock alignItems="center" style={{ marginBottom: 32, marginTop: 150 }}>
+        <Text style={styles.title}>Авторизация</Text>
+      </ContentBlock>
+      <ContentBlock>
+        <TextInput
+          label="Логин"
+          rules={[{ required: true, message: 'Поле обязательно для заполнения' }]}
+          placeholder="Введите логин"
+          value={login}
+          onChangeText={setLogin}
+        />
+        <TextInput
+          label="Пароль"
+          rules={[{ required: true, message: 'Поле обязательно для заполнения' }]}
+          placeholder="Введите пароль"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        <Button type="primary" style={{ width: '100%', marginTop: 20 }} onPress={handleLogin}>
+          <Text style={{ fontSize: 16 }}>ВОЙТИ</Text>
+        </Button>
+      </ContentBlock>
+    </ScreenDataWrapper>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 16,
-  },
   title: {
-    fontSize: 24,
+    fontSize: 34,
     marginBottom: 16,
+    color: Colours.PRIMARY,
     textAlign: 'center',
-  },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-    borderRadius: 4,
   },
 });
 
