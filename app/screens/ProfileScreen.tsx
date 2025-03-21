@@ -86,7 +86,7 @@ const ProfileScreen: React.FC = () => {
                       <FormBlockViewField title="Email:" value={user?.email} />
                     </FormBlockView>
                     <FormBlockView>
-                      <FormBlockViewField title="Группа:" value={String(user?.group_number)} />
+                      <FormBlockViewField title="Группа:" value={user?.group_number ? String(user?.group_number) : '-'} />
                     </FormBlockView>
                   </View>
 
