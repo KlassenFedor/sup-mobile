@@ -101,8 +101,8 @@ const AbsenceDetailsScreen: React.FC = () => {
         }
         backButtonTitle={<Icon iconLib="Feather" name="arrow-left" size={24} color={Colours.SECONDARY} />}
         onBackPress={goBack}
-        actionButtonTitle="редактировать"
-        onActionButtonPress={openEditScreen}
+        // actionButtonTitle="редактировать"
+        // onActionButtonPress={openEditScreen}
       />
       <ScreenDataWrapper style={{ paddingBottom: 0 }}>
         <ContentBlock style={{ backgroundColor: Colours.WHITE, borderRadius: 12 }}>
