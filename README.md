@@ -14,18 +14,12 @@
     npm start
    ```
 
-3. Login
-   ```
-   Login: user
-   Password: password
-   ```
-
-4. Dummy server (server.py file)
+3. Dummy server (server.py file)
    ```
    Install the required dependencies: pip install fastapi uvicorn python-jose[cryptography] passlib
    Run server: uvicorn server:app --reload
    ```
-5. Real server
+4. Real server
    ```
    http://romanskm.beget.tech
    ```
