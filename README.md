@@ -25,6 +25,10 @@
    Install the required dependencies: pip install fastapi uvicorn python-jose[cryptography] passlib
    Run server: uvicorn server:app --reload
    ```
+5. Real server
+   ```
+   http://romanskm.beget.tech
+   ```
 
 In the output, you'll find options to open the app in a
 
