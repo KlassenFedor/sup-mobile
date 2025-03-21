@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { Text, StyleSheet, ActivityIndicator, Alert, ScrollView, View } from 'react-native';
+import { Text, StyleSheet, ActivityIndicator, Alert, ScrollView, View, RefreshControl } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { Colours, UserMock } from '../shared/constants';
 import { UserProfileDTO } from '../shared/types';
@@ -29,33 +29,41 @@ type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Auth
 const ProfileScreen: React.FC = () => {
   const { logout } = useAuth();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [user, setUser] = useState<UserProfileDTO | null>(UserMock);
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        if (await isAuthorized() === false) {
-          console.log('not authorized');
-          logout();
-        }
-        const accessToken = await getAccessToken();
-        const response = await axios.get<UserProfileDTO>(`${API_URL}/${requests.PROFILE}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        console.log(response.data);
-        setUser(response.data);
-      } catch (error) {
-        Alert.alert('Ошибка', 'Не удалось загрузить профиль');
-        console.log(error);
-      } finally {
-        setLoading(false);
+  const fetchUserProfile = async () => {
+    try {
+      if (await isAuthorized() === false) {
+        console.log('not authorized');
+        logout();
       }
-    };
+      const accessToken = await getAccessToken();
+      const response = await axios.get<UserProfileDTO>(`${API_URL}/${requests.PROFILE}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
 
-    fetchUserProfile();
+      console.log(response.data);
+      setUser(response.data);
+    } catch (error) {
+      Alert.alert('Ошибка', 'Не удалось загрузить профиль');
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserProfile();
+    }, [])
+  );
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchUserProfile();
+    setRefreshing(false);
   }, []);
 
   return (
@@ -65,7 +73,7 @@ const ProfileScreen: React.FC = () => {
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
-          <ScrollView showsVerticalScrollIndicator={false} style={{ borderTopColor: 'transparent', borderTopWidth: 0 }}>
+          <ScrollView showsVerticalScrollIndicator={false} style={{ borderTopColor: 'transparent', borderTopWidth: 0 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
             <ContentBlock style={{ alignItems: 'center', paddingTop: 36, zIndex: 1000 }}>
               <Avatar size={92} />
             </ContentBlock>
