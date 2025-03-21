@@ -25,6 +25,11 @@ export enum AbsenceStatusToRussian {
   rejected = 'отклонен',
 }
 
+export enum AbsenceReason {
+  health = 'По состоянию здоровья',
+  other = 'Другое',
+}
+
 export const MonthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июнь', 'июль', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 
 export const ServerDateFormat = 'DD.MM.YYYY';

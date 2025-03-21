@@ -15,7 +15,7 @@ import {
   ScreenHeader,
 } from '@sup-components';
 import { NavigationType } from '../context/NavigationContext';
-import { AbsenceStatusToRussian, Colours, ServerDateFormat } from '../shared/constants';
+import { AbsenceReason, AbsenceStatusToRussian, Colours, ServerDateFormat } from '../shared/constants';
 import { convertStrToDate, getAccessToken, isAuthorized } from '../shared/helpers';
 import moment from 'moment';
 import { API_URL, formatString, requests } from '../shared/api_requests';
@@ -70,6 +70,7 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
         };
 
         console.log('Fetched absence data:', newAbsence);
+        console.log(moment(newAbsence.endDate).format(ServerDateFormat));
         setAbsenceToEdit(newAbsence);
       } catch (error) {
         Alert.alert('Ошибка', 'Не удалось получить данные пропуска');
@@ -189,13 +190,13 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
                 <FormItem
                   label="по:"
                   name={'endDate'}
-                  initialValue={absenceToEdit.endDate ? moment(absenceToEdit.endDate).format(ServerDateFormat) : undefined}
+                  initialValue={undefined}
                   rules={[{ required: true }]}
                 >
                   <DateTimePicker
                     format={'DD.MM.YYYY'}
                     formItemName="endDate"
-                    initialValue={moment(absenceToEdit.endDate).format(ServerDateFormat)}
+                    initialValue={moment(absenceToEdit.endDate).format(ServerDateFormat) || undefined}
                     minDate={moment(absenceToEdit.endDate).format(ServerDateFormat)}
                     precision={'day'}
                     visible={dateVisible}
@@ -207,6 +208,12 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
                 <FormBlockViewField
                   title="Статус:"
                   value={`${AbsenceStatusToRussian[absenceToEdit.status as 'pending' | 'approved' | 'rejected']}`}
+                />
+              </FormBlockView>
+              <FormBlockView>
+                <FormBlockViewField
+                  title="Причина:"
+                  value={(absenceToEdit.reason === 'health') ? AbsenceReason.health : AbsenceReason.other }
                 />
               </FormBlockView>
 
@@ -253,7 +260,7 @@ const EditAbsenceScreen: React.FC<{ navigation: NavigationType }> = ({ navigatio
                     </View>
                   ))
                 ) : (
-                  <Text style={{ color: Colours.DARK_GREY}}>Нет прикрепленных документов</Text>
+                  <Text style={{ color: Colours.DARK_GREY}}></Text>
                 )}
               </FormBlockView>
               <Button onPress={handleAttachFile} wrap type="ghost" style={{ borderWidth: 2, marginBottom: 12, marginTop: 8 }}>

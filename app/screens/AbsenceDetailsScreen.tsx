@@ -10,7 +10,7 @@ import {
   ScreenDataWrapper,
   ScreenHeader,
 } from '@sup-components';
-import { AbsenceStatusToRussian, Colours } from '../shared/constants';
+import { AbsenceReason, AbsenceStatusToRussian, Colours } from '../shared/constants';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { Form } from '@ant-design/react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -129,6 +129,12 @@ const AbsenceDetailsScreen: React.FC = () => {
                   />
                 </FormBlockView>
               </View>
+              <FormBlockView>
+                <FormBlockViewField
+                  title="Причина:"
+                  value={(absence.reason === 'health') ? AbsenceReason.health : AbsenceReason.other }
+                />
+              </FormBlockView>
 
               <View>
                 <FormFieldsBlockTitle title="Вложения" style={{ marginTop: 24 }} />

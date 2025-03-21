@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { ContentBlock, DateTimePicker, FormItem, ScreenDataWrapper, ScreenHeader, Button, Icon } from '@sup-components';
-import { Colours, ServerDateFormat } from '../shared/constants';
+import { AbsenceReason, Colours, ServerDateFormat } from '../shared/constants';
 import { NavigationType } from '../context/NavigationContext';
+import RNPickerSelect from 'react-native-picker-select';
 import { Form, Text } from '@ant-design/react-native';
 import moment from 'moment';
 import axios from 'axios';
@@ -21,6 +22,11 @@ const CreateAbsenceScreen: React.FC<{
   const [endDateVisible, setEndDateVisible] = useState(false);
   const endDate = Form.useWatch('endDate', form);
   const [attachedFiles, setAttachedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
+  const [selectedValue, setSelectedValue] = useState<string>('health');
+  const pickerItems = [
+    { label: 'По состоянию здоровья', value: 'health' },
+    { label: 'Другое', value: 'other' },
+  ];
 
   console.log('create formValues', form.getFieldsValue());
 
@@ -76,6 +82,7 @@ const CreateAbsenceScreen: React.FC<{
       const formData = new FormData();
       formData.append('start_date', absenceData.start_date);
       formData.append('end_date', absenceData.end_date);
+      formData.append('reason', selectedValue);
       absenceData.attached_files.forEach((file) => {
         if (file?.uri) {
           formData.append('documents[]', {
@@ -133,33 +140,44 @@ const CreateAbsenceScreen: React.FC<{
             >
               <FormItem label="Дата с:" name={'startDate'} initialValue={undefined} rules={[{ required: true }]}>
                 <DateTimePicker
-                  format={'DD.MM.YYYY HH:mm'}
+                  format={'DD.MM.YYYY'}
                   formItemName="startDate"
                   iconColor="PLACEHOLDER"
-                  initialValue={moment().startOf('day').format('DD.MM.YYYY HH:mm').toString()}
-                  minDate={moment().startOf('day').format('DD.MM.YYYY HH:mm').toString()}
-                  maxDate={endDate ? moment(endDate).format('DD.MM.YYYY HH:mm').toString() : undefined}
-                  precision={'minute'}
+                  initialValue={moment().startOf('day').format('DD.MM.YYYY').toString()}
+                  minDate={moment().startOf('day').format('DD.MM.YYYY').toString()}
+                  maxDate={endDate ? moment(endDate).format('DD.MM.YYYY').toString() : undefined}
+                  precision={'day'}
                   visible={startDateVisible}
                   setVisible={setStartDateVisible}
                 />
               </FormItem>
               <FormItem label="Дата по:" name={'endDate'} initialValue={undefined} rules={[{ required: true }]}>
                 <DateTimePicker
-                  format={'DD.MM.YYYY HH:mm'}
+                  format={'DD.MM.YYYY'}
                   formItemName="endDate"
                   iconColor="PLACEHOLDER"
                   initialValue={endDate || undefined}
                   minDate={
                     startDate
-                      ? moment(startDate).format('DD.MM.YYYY HH:mm').toString()
-                      : moment().endOf('day').format('DD.MM.YYYY HH:mm').toString()
+                      ? moment(startDate).format('DD.MM.YYYY').toString()
+                      : moment().endOf('day').format('DD.MM.YYYY').toString()
                   }
-                  precision={'minute'}
+                  precision={'day'}
                   visible={endDateVisible}
                   setVisible={setEndDateVisible}
                 />
               </FormItem>
+
+              <View style={{ flex: 1, justifyContent: 'center', padding: 20}}>
+                <Text>Выберите причину пропуска:</Text>
+                <View style={{ flex: 1, justifyContent: 'center', padding: 0, borderColor: 'black', borderWidth: 1, height: 40 }}>
+                  <RNPickerSelect
+                    onValueChange={(value) => setSelectedValue(value)}
+                    items={pickerItems}
+                    placeholder={{}}
+                  />
+                </View>
+              </View>
 
               <ContentBlock alignItems="center" style={{ padding: 0 }}>
                 <Button onPress={handleAttachFile} wrap type="ghost" style={{ borderWidth: 2, marginBottom: 4, marginTop: 16 }}>

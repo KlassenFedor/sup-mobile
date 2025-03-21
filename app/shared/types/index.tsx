@@ -37,6 +37,7 @@ export interface fileDTO {
 
 export interface AbsenceWithUserDTO {
   id: string;
+  reason?: string;
   name?: string;
   startDate: string;
   endDate: string;
